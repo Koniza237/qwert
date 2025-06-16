@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Exportation des emplois du temps pour Fareno University">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="shortcut icon" href="FARENOUNIVERSITY.jpg" type="image/png">
+    <title>Exportation - Fareno University</title>
+    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.24.7/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: #f9fafb;
+            margin: 0;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .dark body {
+            background-color: #0f1320;
+            color: #f9fafb;
+        }
+
+        #background-image {
+            background: linear-gradient(135deg, #1e40af, #7c3aed, #1e40af);
+            background-size: 200% 200%;
+            animation: gradientShift 20s ease-in-out infinite;
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            opacity: 0.65;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        #root {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            background-color: rgba(255, 255, 255, 0.98);
+            transition: background-color 0.3s ease;
+        }
+
+        .dark #root {
+            background-color: rgba(15, 19, 32, 0.98);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .dark .card {
+            background: #1e293b;
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        header {
+            background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 1rem 2rem;
+        }
+
+        .gradient-button {
+            background: linear-gradient(45deg, #3b82f6, #7c3aed);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .gradient-button:hover {
+            background: linear-gradient(45deg, #2563eb, #6d28d9);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .gradient-button:focus {
+            outline: none;
+        }
+
+        .secondary-button {
+            background: #f3f4f6;
+            color: #1f2937;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .dark .secondary-button {
+            background: #374151;
+            color: #f9fafb;
+        }
+
+        .secondary-button:hover {
+            background: #e5e7eb;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark .secondary-button:hover {
+            background: #4b5563;
+        }
+
+        table {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+            cursor: pointer;
+        }
+
+        .dark th, .dark td {
+            border-bottom-color: #374151;
+        }
+
+        th {
+            background: #3b82f6;
+            color: white;
+            font-weight: 600;
+            cursor: default;
+        }
+
+        .dark th {
+            background: #1e40af;
+        }
+
+        tr:nth-child(even) {
+            background: #f9fafb;
+        }
+
+        .dark tr:nth-child(even) {
+            background: #1e293b;
+        }
+
+        .pause-row {
+            background: #e5e7eb !important;
+            font-weight: 500;
+            cursor: default !important;
+        }
+
+        .dark .pause-row {
+            background: #374151 !important;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .edited-cell {
+            background-color: #fefcbf !important;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .dark .modal-content {
+            background: #1e293b;
+            color: #f9fafb;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <div id="background-image"></div>
+    <div id="root" className="w-full flex-1"></div>
+
+    <script type="text/babel">
+        function ErrorBoundary({ children }) {
+            const [hasError, setHasError] = React.useState(false);
+            const [error, setError] = React.useState(null);
+
+            React.useEffect(() => {
+                const errorHandler = (error, errorInfo) => {
+                    console.error('Error caught by boundary:', error, errorInfo);
+                    setHasError(true);
+                    setError(error);
+                };
+                window.addEventListener('error', errorHandler);
+                return () => window.removeEventListener('error', errorHandler);
+            }, []);
+
+            if (hasError) {
+                return (
+                    <div className="p-6 max-w-7xl mx-auto">
+                        <div className="error-message">
+                            <h2 className="text-lg font-semibold">Une erreur est survenue</h2>
+                            <p>{error?.message || 'Erreur inconnue.'}</p>
+                            <button
+                                className="gradient-button mt-2"
+                                onClick={() => window.location.reload()}
+                            >
+                                Réessayer
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+            return children;
+        }
+
+        function EditModal({ isOpen, onClose, onSave, viewMode, initialValue, time, day, groups, teachers, rooms }) {
+            const [option, setOption] = React.useState('');
+            const [customSubject, setCustomSubject] = React.useState('');
+            const [customTeacher, setCustomTeacher] = React.useState('');
+            const [customGroup, setCustomGroup] = React.useState('');
+            const [customRoom, setCustomRoom] = React.useState('');
+            const [error, setError] = React.useState('');
+
+            React.useEffect(() => {
+                if (viewMode === 'group') {
+                    if (['TPE', 'Projet', 'Fraîche'].includes(initialValue)) {
+                        setOption(initialValue);
+                    } else if (initialValue && initialValue !== '-') {
+                        setOption('custom');
+                        const match = initialValue.match(/^(.+?) \((.+?), (.+?), (.+?)\)$/);
+                        if (match) {
+                            setCustomSubject(match[1]);
+                            setCustomTeacher(match[2]);
+                            setCustomGroup(match[3]);
+                            setCustomRoom(match[4]);
+                        }
+                    } else {
+                        setOption('');
+                    }
+                } else {
+                    if (['TPE', 'Projet', 'Fraîche'].includes(initialValue?.subject)) {
+                        setOption(initialValue.subject);
+                    } else if (initialValue?.subject) {
+                        setOption('custom');
+                        setCustomSubject(initialValue.subject);
+                        setCustomGroup(initialValue.group);
+                        setCustomRoom(initialValue.room);
+                    } else {
+                        setOption('');
+                    }
+                }
+            }, [initialValue, viewMode]);
+
+            const handleSave = () => {
+                if (viewMode === 'group') {
+                    if (!option) {
+                        setError('Veuillez sélectionner une option.');
+                        return;
+                    }
+                    if (option === 'custom') {
+                        if (!customSubject || !customTeacher || !customGroup || !customRoom) {
+                            setError('Tous les champs sont requis pour un cours personnalisé.');
+                            return;
+                        }
+                        const value = `${customSubject} (${customTeacher}, ${customGroup}, ${customRoom})`;
+                        onSave(value);
+                    } else if (option === 'clear') {
+                        onSave('-');
+                    } else {
+                        onSave(option);
+                    }
+                } else {
+                    if (!option) {
+                        setError('Veuillez sélectionner une option.');
+                        return;
+                    }
+                    if (option === 'custom') {
+                        if (!customSubject || !customGroup || !customRoom) {
+                            setError('Tous les champs sont requis pour un cours personnalisé.');
+                            return;
+                        }
+                        onSave({ subject: customSubject, group: customGroup, room: customRoom, time, day });
+                    } else if (option === 'clear') {
+                        onSave(null);
+                    } else {
+                        onSave({ subject: option, group: customGroup || '-', room: customRoom || '-', time, day });
+                    }
+                }
+                onClose();
+            };
+
+            if (!isOpen) return null;
+
+            return (
+                <div className="modal">
+                    <div className="modal-content">
+                        <h2 className="text-lg font-semibold mb-4">Modifier la case</h2>
+                        {error && <div className="error-message mb-4">{error}</div>}
+                        <select
+                            className="border p-2 rounded w-full mb-4 bg-gray-50 text-gray-700 dark:bg-gray-700 dark:text-white"
+                            value={option}
+                            onChange={(e) => setOption(e.target.value)}
+                        >
+                            <option value="">Sélectionner une option</option>
+                            <option value="TPE">TPE</option>
+                            <option value="Projet">Projet</option>
+                            <option value="Fraîche">Fraîche</option>
+                            <option value="custom">Personnalisé</option>
+                            <option value="clear">Effacer</option>
+                        </select>
+                        {option === 'custom' && (
+                            <div className="space-y-4">
+                                <input
+                                    type="text"
+                                    placeholder="Matière"
+                                    className="border p-2 rounded w-full bg-gray-50 text-gray-700 dark:bg-gray-700 dark:text-white"
+                                    value={customSubject}
+                                    onChange={(e) => setCustomSubject(e.target.value)}
+                                />
+                                {viewMode === 'group' && (
+                                    <select
+                                        className="border p-2 rounded w-full bg-gray-50 text-gray-700 dark:bg-gray-700 dark:text-white"
+                                        value={customTeacher}
+                                        onChange={(e) => setCustomTeacher(e.target.value)}
+                                    >
+                                        <option value="">Sélectionner un enseignant</option>
+                                        {teachers.map(teacher => (
+                                            <option key={teacher.id} value={teacher.name}>{teacher.name}</option>
+                                        ))}
+                                    </select>
+                                )}
+                                <select
+                                    className="border p-2 rounded w-full bg-gray-50 text-gray-700 dark:bg-gray-700 dark:text-white"
+                                    value={customGroup}
+                                    onChange={(e) => setCustomGroup(e.target.value)}
+                                >
+                                    <option value="">Sélectionner un groupe</option>
+                                    {groups.map(group => (
+                                        <option key={group.id} value={group.name}>{group.name}</option>
+                                    ))}
+                                </select>
+                                <select
+                                    className="border p-2 rounded w-full bg-gray-50 text-gray-700 dark:bg-gray-700 dark:text-white"
+                                    value={customRoom}
+                                    onChange={(e) => setCustomRoom(e.target.value)}
+                                >
+                                    <option value="">Sélectionner une salle</option>
+                                    {rooms.map(room => (
+                                        <option key={room.id} value={room.name}>{room.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+                        <div className="flex justify-end gap-2 mt-6">
+                            <button className="secondary-button" onClick={onClose}>Annuler</button>
+                            <button className="gradient-button" onClick={handleSave}>Enregistrer</button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function ExportationPage() {
+            const [timetables, setTimetables] = React.useState({});
+            const [teacherTimetables, setTeacherTimetables] = React.useState({});
+            const [editedTimetables, setEditedTimetables] = React.useState({});
+            const [editedTeacherTimetables, setEditedTeacherTimetables] = React.useState({});
+            const [groups, setGroups] = React.useState([]);
+            const [teachers, setTeachers] = React.useState([]);
+            const [rooms, setRooms] = React.useState([]);
+            const [selectedGroup, setSelectedGroup] = React.useState('');
+            const [selectedTeacher, setSelectedTeacher] = React.useState('');
+            const [selectedDate, setSelectedDate] = React.useState('');
+            const [days, setDays] = React.useState([]);
+            const [history, setHistory] = React.useState([]);
+            const [timeSpent, setTimeSpent] = React.useState(0);
+            const [theme, setTheme] = React.useState('light');
+            const [error, setError] = React.useState(null);
+            const [isLoading, setIsLoading] = React.useState(false);
+            const [viewMode, setViewMode] = React.useState('group');
+            const [isModalOpen, setIsModalOpen] = React.useState(false);
+            const [editingCell, setEditingCell] = React.useState(null);
+
+            React.useEffect(() => {
+                const savedTheme = localStorage.getItem('theme') || 'light';
+                setTheme(savedTheme);
+                document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+
+                const startTime = new Date();
+                const timer = setInterval(() => {
+                    setTimeSpent(Math.floor((Date.now() - startTime) / 1000));
+                }, 1000);
+
+                fetchData();
+
+                return () => clearInterval(timer);
+            }, []);
+
+            const formatTime = (seconds) => {
+                const hrs = Math.floor(seconds / 3600);
+                const mins = Math.floor((seconds % 3600) / 60);
+                const secs = seconds % 60;
+                return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            };
+
+            const fetchData = async () => {
+                try {
+                    setIsLoading(true);
+                    const [groupRes, teacherRes, historyRes, roomRes] = await Promise.all([
+                        fetch('/api/resources/groups'),
+                        fetch('/api/resources/teachers'),
+                        fetch('/api/history'),
+                        fetch('/api/resources/rooms')
+                    ]);
+                    if (!groupRes.ok) throw new Error('Échec du chargement des groupes');
+                    if (!teacherRes.ok) throw new Error('Échec du chargement des enseignants');
+                    if (!historyRes.ok) throw new Error('Échec du chargement de l\'historique');
+                    if (!roomRes.ok) throw new Error('Échec du chargement des salles');
+                    const groupsData = await groupRes.json();
+                    const teachersData = await teacherRes.json();
+                    const historyData = await historyRes.json();
+                    const roomsData = await roomRes.json();
+                    setGroups(groupsData);
+                    setTeachers(teachersData);
+                    setHistory(historyData);
+                    setRooms(roomsData);
+                    setIsLoading(false);
+                } catch (err) {
+                    console.error('Erreur lors du chargement:', err);
+                    setError('Impossible de charger les données. Veuillez réessayer.');
+                    setIsLoading(false);
+                }
+            };
+
+            const fetchTimetable = async () => {
+                if (!selectedDate) {
+                    setError('Veuillez sélectionner une date.');
+                    return;
+                }
+                try {
+                    setIsLoading(true);
+                    setError(null);
+                    const res = await fetch('/api/generate-timetable', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ date: selectedDate })
+                    });
+                    if (!res.ok) throw new Error('Échec de la génération de l\'emploi du temps');
+                    const data = await res.json();
+                    const groupedTimetables = {};
+                    const editedGroupedTimetables = {};
+                    data.groups.forEach(item => {
+                        groupedTimetables[item.group] = item.timetable;
+                        editedGroupedTimetables[item.group] = item.timetable.map(t => ({ ...t }));
+                        if (item.group === selectedGroup) {
+                            setDays(item.days);
+                        }
+                    });
+                    const teacherTimetablesData = {};
+                    const editedTeacherTimetablesData = {};
+                    data.teachers.forEach(item => {
+                        teacherTimetablesData[item.teacher] = item.courses;
+                        editedTeacherTimetablesData[item.teacher] = [...item.courses];
+                    });
+                    setTimetables(groupedTimetables);
+                    setEditedTimetables(editedGroupedTimetables);
+                    setTeacherTimetables(teacherTimetablesData);
+                    setEditedTeacherTimetables(editedTeacherTimetablesData);
+                    setIsLoading(false);
+                } catch (err) {
+                    console.error('Erreur lors de la génération:', err);
+                    setError('Impossible de générer l\'emploi du temps. Veuillez réessayer.');
+                    setIsLoading(false);
+                }
+            };
+
+            const saveChanges = async () => {
+                if (viewMode === 'group') {
+                    if (!selectedGroup || !editedTimetables[selectedGroup]?.length || !selectedDate) {
+                        setError('Veuillez sélectionner un groupe, une date et modifier l\'emploi du temps.');
+                        return;
+                    }
+                    try {
+                        setIsLoading(true);
+                        const res = await fetch('/api/export-timetable', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                type: 'group',
+                                timetables: editedTimetables[selectedGroup],
+                                date: selectedDate,
+                                group: selectedGroup,
+                                days
+                            })
+                        });
+                        if (!res.ok) throw new Error('Échec de l\'enregistrement');
+                        setTimetables(prev => ({
+                            ...prev,
+                            [selectedGroup]: editedTimetables[selectedGroup]
+                        }));
+                        await fetchData();
+                        setIsLoading(false);
+                        alert('Modifications enregistrées avec succès.');
+                    } catch (err) {
+                        console.error('Erreur lors de l\'enregistrement:', err);
+                        setError('Échec de l\'enregistrement. Veuillez réessayer.');
+                        setIsLoading(false);
+                    }
+                } else {
+                    if (!selectedTeacher || !editedTeacherTimetables[selectedTeacher]?.length || !selectedDate) {
+                        setError('Veuillez sélectionner un enseignant, une date et modifier l\'emploi du temps.');
+                        return;
+                    }
+                    try {
+                        setIsLoading(true);
+                        const res = await fetch('/api/export-timetable', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                type: 'teacher',
+                                timetables: { teacher: selectedTeacher, courses: editedTeacherTimetables[selectedTeacher] },
+                                teacher: selectedTeacher,
+                                date: selectedDate
+                            })
+                        });
+                        if (!res.ok) throw new Error('Échec de l\'enregistrement');
+                        setTeacherTimetables(prev => ({
+                            ...prev,
+                            [selectedTeacher]: editedTeacherTimetables[selectedTeacher]
+                        }));
+                        await fetchData();
+                        setIsLoading(false);
+                        alert('Modifications enregistrées avec succès.');
+                    } catch (err) {
+                        console.error('Erreur lors de l\'enregistrement:', err);
+                        setError('Échec de l\'enregistrement. Veuillez réessayer.');
+                        setIsLoading(false);
+                    }
+                }
+            };
+
+            const exportToPDF = async () => {
+                if (!selectedGroup || !editedTimetables[selectedGroup]?.length || !selectedDate) {
+                    setError('Veuillez sélectionner un groupe, une date et générer un emploi du temps.');
+                    return;
+                }
+                try {
+                    setIsLoading(true);
+                    const res = await fetch('/api/export-pdf', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            type: 'group',
+                            timetables: editedTimetables[selectedGroup],
+                            date: selectedDate,
+                            group: selectedGroup,
+                            days
+                        })
+                    });
+                    if (!res.ok) throw new Error('Échec de l\'exportation PDF');
+                    const blob = await res.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `emploi_du_temps_${selectedGroup}_${selectedDate}.pdf`;
+                    link.click();
+                    window.URL.revokeObjectURL(url);
+                    setIsLoading(false);
+                } catch (err) {
+                    console.error('Erreur lors de l\'exportation PDF:', err);
+                    setError('Échec de l\'exportation PDF. Veuillez réessayer.');
+                    setIsLoading(false);
+                }
+            };
+
+            const exportTeacherToPDF = async () => {
+                if (!selectedTeacher || !editedTeacherTimetables[selectedTeacher]?.length || !selectedDate) {
+                    setError('Veuillez sélectionner un enseignant, une date et générer un emploi du temps.');
+                    return;
+                }
+                try {
+                    setIsLoading(true);
+                    const res = await fetch('/api/export-pdf', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            type: 'teacher',
+                            timetables: { teacher: selectedTeacher, courses: editedTeacherTimetables[selectedTeacher] },
+                            teacher: selectedTeacher,
+                            date: selectedDate
+                        })
+                    });
+                    if (!res.ok) throw new Error('Échec de l\'exportation PDF');
+                    const blob = await res.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `emploi_du_temps_enseignant_${selectedTeacher}_${selectedDate}.pdf`;
+                    link.click();
+                    window.URL.revokeObjectURL(url);
+                    setIsLoading(false);
+                } catch (err) {
+                    console.error('Erreur lors de l\'exportation PDF:', err);
+                    setError('Échec de l\'exportation PDF. Veuillez réessayer.');
+                    setIsLoading(false);
+                }
+            };
+
+            const exportToCSV = () => {
+                if (!selectedGroup || !editedTimetables[selectedGroup]?.length) {
+                    setError('Veuillez sélectionner un groupe et générer un emploi du temps.');
+                    return;
+                }
+                const dayHeaders = days.map(day => day.display);
+                const data = editedTimetables[selectedGroup].map(t => ({
+                    Heure: t.time,
+                    ...days.reduce((acc, day) => ({
+                        ...acc,
+                        [day.display]: t[day.name] || '-'
+                    }), {})
+                })).concat(editedTimetables[selectedGroup].some(t => t.time === '10:00-12:00') ? [{
+                    Heure: '12:00-13:00',
+                    ...days.reduce((acc, day) => ({
+                        ...acc,
+                        [day.display]: 'Pause'
+                    }), {})
+                }] : []);
+                const ws = XLSX.utils.json_to_sheet(data);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Emploi du Temps');
+                XLSX.writeFile(wb, `emploi_du_temps_${selectedGroup}_${selectedDate}.csv`);
+            };
+
+            const exportToICal = () => {
+                if (!selectedGroup || !editedTimetables[selectedGroup]?.length || !selectedDate) {
+                    setError('Veuillez sélectionner un groupe, une date et générer un emploi du temps.');
+                    return;
+                }
+                const events = editedTimetables[selectedGroup].flatMap(t => days
+                    .filter(day => t[day.name] && t[day.name] !== '-' && t[day.name] !== 'Libre')
+                    .map(day => {
+                        const [startHour, endHour] = t.time.split('-');
+                        const eventDate = new Date(`${selectedDate}T${startHour}:00`);
+                        eventDate.setDate(eventDate.getDate() + days.findIndex(d => d.name === day.name));
+                        const [subject, details] = t[day.name].split(' (') || [t[day.name], ''];
+                        const start = new Date(`${eventDate.toISOString().split('T')[0]}T${startHour}:00`);
+                        const end = new Date(`${eventDate.toISOString().split('T')[0]}T${endHour}:00`);
+                        return {
+                            start: start.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z',
+                            end: end.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z',
+                            summary: subject,
+                            description: details.replace(')', '')
+                        };
+                    })
+                );
+                const icsContent = [
+                    'BEGIN:VCALENDAR',
+                    'VERSION:2.0',
+                    'PRODID:-//Fareno University//Timetable//EN',
+                    ...events.flatMap(event => [
+                        'BEGIN:VEVENT',
+                        `DTSTART:${event.start}`,
+                        `DTEND:${event.end}`,
+                        `SUMMARY:${event.summary}`,
+                        `DESCRIPTION:${event.description}`,
+                        'END:VEVENT'
+                    ]),
+                    'END:VCALENDAR'
+                ].join('\r\n');
+                const blob = new Blob([icsContent], { type: 'text/calendar' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `emploi_du_temps_${selectedGroup}_${selectedDate}.ics`;
+                link.click();
+            };
+
+            const exportTeacherToCSV = () => {
+                if (!selectedTeacher || !editedTeacherTimetables[selectedTeacher]?.length) {
+                    setError('Veuillez sélectionner un enseignant et générer un emploi du temps.');
+                    return;
+                }
+                const data = editedTeacherTimetables[selectedTeacher].map(course => ({
+                    Jour: course.dayDisplay,
+                    Heure: course.time,
+                    Matière: course.subject,
+                    Groupe: course.group,
+                    Salle: course.room
+                }));
+                const ws = XLSX.utils.json_to_sheet(data);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Emploi du Temps Enseignant');
+                XLSX.writeFile(wb, `emploi_du_temps_enseignant_${selectedTeacher}_${selectedDate}.csv`);
+            };
+
+            const toggleTheme = () => {
+                const newTheme = theme === 'light' ? 'dark' : 'light';
+                setTheme(newTheme);
+                localStorage.setItem('theme', newTheme);
+                document.documentElement.classList.toggle('dark', newTheme === 'dark');
+            };
+
+            const switchViewMode = (mode) => {
+                setViewMode(mode);
+                setSelectedGroup('');
+                setSelectedTeacher('');
+                setError(null);
+                setEditingCell(null);
+            };
+
+            const handleCellClick = (time, day, value, index) => {
+                if (time === '12:00-13:00') return; // Prevent editing pause row
+                setEditingCell({ time, day, value, index });
+                setIsModalOpen(true);
+            };
+
+            const handleSaveEdit = (value) => {
+                if (viewMode === 'group') {
+                    setEditedTimetables(prev => {
+                        const newTimetables = { ...prev };
+                        newTimetables[selectedGroup] = newTimetables[selectedGroup].map(t => {
+                            if (t.time === editingCell.time) {
+                                return { ...t, [editingCell.day]: value };
+                            }
+                            return t;
+                        });
+                        return newTimetables;
+                    });
+                } else {
+                    setEditedTeacherTimetables(prev => {
+                        const newTimetables = { ...prev };
+                        if (value === null) {
+                            newTimetables[selectedTeacher] = newTimetables[selectedTeacher].filter(
+                                (course, idx) => idx !== editingCell.index
+                            );
+                        } else if (editingCell.index >= 0) {
+                            newTimetables[selectedTeacher] = newTimetables[selectedTeacher].map((course, idx) =>
+                                idx === editingCell.index
+                                    ? { ...course, subject: value.subject, group: value.group, room: value.room }
+                                    : course
+                            );
+                        } else {
+                            newTimetables[selectedTeacher] = [
+                                ...newTimetables[selectedTeacher],
+                                {
+                                    day: editingCell.day,
+                                    dayDisplay: days.find(d => d.name === editingCell.day)?.display || editingCell.day,
+                                    time: editingCell.time,
+                                    subject: value.subject,
+                                    group: value.group,
+                                    room: value.room
+                                }
+                            ];
+                        }
+                        return newTimetables;
+                    });
+                }
+            };
+
+            const isCellEdited = (time, day, index) => {
+                if (viewMode === 'group') {
+                    if (!editedTimetables[selectedGroup]) return false;
+                    const original = timetables[selectedGroup]?.find(t => t.time === time)?.[day];
+                    const edited = editedTimetables[selectedGroup]?.find(t => t.time === time)?.[day];
+                    return original !== edited;
+                } else {
+                    if (!editedTeacherTimetables[selectedTeacher]) return false;
+                    const originalCourse = timetables[selectedTeacher]?.[index];
+                    const editedCourse = editedTeacherTimetables[selectedTeacher]?.[index];
+                    if (!originalCourse && editedCourse) return true;
+                    if (!editedCourse) return false;
+                    return (
+                        originalCourse?.subject !== editedCourse?.subject ||
+                        originalCourse?.group !== editedCourse?.group ||
+                        originalCourse?.room !== editedCourse?.room
+                    );
+                }
+            };
+
+            const teacherHeaders = ['Jour', 'Heure', 'Code', 'Groupe', 'Salle'];
+
+            return (
+                <div className="min-h-screen">
+                    <header className="bg-white dark:bg-gray-900 shadow-md p-4 flex justify-between items-center">
+                        <div className="flex items-center space-x-3">
+                            <img src="FARENOUNIVERSITY.jpg" alt="Fareno University Logo" className="h-10 w-10 rounded-full" />
+                            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Exportation - Fareno University</h1>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <span className="text-sm font-medium text-gray-600 dark:text-gray-300">Temps passé : {formatTime(timeSpent)}</span>
+                            <button
+                                className="secondary-button"
+                                onClick={toggleTheme}
+                                aria-label={theme === 'light' ? 'Passer au mode sombre' : 'Passer au mode clair'}
+                            >
+                                {theme === 'light' ? '🌙 Mode Sombre' : '☀️ Mode Clair'}
+                            </button>
+                            <a href="dashboard.html" className="gradient-button flex items-center" aria-label="Retour au tableau de bord">
+                                Retour au Tableau de Bord
+                            </a>
+                        </div>
+                    </header>
+                    <main className="p-6 max-w-7xl mx-auto">
+                        <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-6 fade-in">Exportation 📤</h2>
+                        {error && (
+                            <div className="error-message mb-6">
+                                {error}
+                            </div>
+                        )}
+                        <div className="flex flex-wrap gap-4 mb-8">
+                            <div className="flex gap-2">
+                                <button
+                                    className={`gradient-button ${viewMode === 'group' ? 'opacity-100' : 'opacity-50'}`}
+                                    onClick={() => switchViewMode('group')}
+                                >
+                                    Vue Groupe
+                                </button>
+                                <button
+                                    className={`gradient-button ${viewMode === 'teacher' ? 'opacity-100' : 'opacity-50'}`}
+                                    onClick={() => switchViewMode('teacher')}
+                                >
+                                    Vue Enseignant
+                                </button>
+                            </div>
+                            {viewMode === 'group' ? (
+                                <select
+                                    className="border p-2 rounded w-full md:w-64 bg-gray-50 text-gray-700 dark:bg-gray-700 dark:text-white"
+                                    value={selectedGroup}
+                                    onChange={(e) => setSelectedGroup(e.target.value)}
+                                >
+                                    <option value="">Sélectionner un groupe</option>
+                                    {groups.map(group => (
+                                        <option key={group.id} value={group.name}>{group.name}</option>
+                                    ))}
+                                </select>
+                            ) : (
+                                <select
+                                    className="border p-2 rounded w-full md:w-64 bg-gray-50 text-gray-700 dark:bg-gray-700 dark:text-white"
+                                    value={selectedTeacher}
+                                    onChange={(e) => setSelectedTeacher(e.target.value)}
+                                >
+                                    <option value="">Sélectionner un enseignant</option>
+                                    {teachers.map(teacher => (
+                                        <option key={teacher.id} value={teacher.name}>{teacher.name}</option>
+                                    ))}
+                                </select>
+                            )}
+                            <input
+                                type="date"
+                                className="border p-2 rounded w-full md:w-64 bg-gray-50 text-gray-700 dark:bg-gray-700 dark:text-white"
+                                value={selectedDate}
+                                onChange={(e) => setSelectedDate(e.target.value)}
+                            />
+                            <button className="gradient-button" onClick={fetchTimetable} disabled={isLoading}>
+                                {isLoading ? 'Génération...' : 'Générer'}
+                            </button>
+                            {viewMode === 'group' && (
+                                <>
+                                    <button className="gradient-button" onClick={saveChanges} disabled={isLoading}>
+                                        Enregistrer Modifications
+                                    </button>
+                                    <button className="gradient-button" onClick={exportToPDF} disabled={isLoading}>
+                                        Exporter en PDF
+                                    </button>
+                                    <button className="gradient-button" onClick={exportToCSV} disabled={isLoading}>
+                                        Exporter en CSV
+                                    </button>
+                                    <button className="gradient-button" onClick={exportToICal} disabled={isLoading}>
+                                        Exporter en iCal
+                                    </button>
+                                </>
+                            )}
+                            {viewMode === 'teacher' && (
+                                <>
+                                    <button className="gradient-button" onClick={saveChanges} disabled={isLoading}>
+                                        Enregistrer Modifications
+                                    </button>
+                                    <button className="gradient-button" onClick={exportTeacherToPDF} disabled={isLoading}>
+                                        Exporter en PDF
+                                    </button>
+                                    <button className="gradient-button" onClick={exportTeacherToCSV} disabled={isLoading}>
+                                        Exporter en CSV
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                        <div className="timetable-preview fade-in">
+                            {isLoading ? (
+                                <div className="card p-4 text-center text-gray-500 dark:text-gray-400">
+                                    Chargement...
+                                </div>
+                            ) : groups.length === 0 && teachers.length === 0 ? (
+                                <div className="card p-4 text-center text-gray-500 dark:text-gray-400">
+                                    Aucun groupe ou enseignant disponible.
+                                </div>
+                            ) : viewMode === 'group' ? (
+                                selectedGroup && editedTimetables[selectedGroup]?.length && days.length ? (
+                                    <div className="card mb-6">
+                                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                                            Emploi du Temps - {selectedGroup} (Semaine du {selectedDate})
+                                        </h3>
+                                        <div className="overflow-x-auto">
+                                            <table>
+                                                <thead>
+                                                    <tr>
+                                                        <th>Heure</th>
+                                                        {days.map((day, index) => (
+                                                            <th key={index}>{day.display}</th>
+                                                        ))}
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {editedTimetables[selectedGroup].map((t, index) => (
+                                                        <React.Fragment key={index}>
+                                                            <tr>
+                                                                <td>{t.time}</td>
+                                                                {days.map((day, idx) => (
+                                                                    <td
+                                                                        key={idx}
+                                                                        className={isCellEdited(t.time, day.name) ? 'edited-cell' : ''}
+                                                                        onClick={() => handleCellClick(t.time, day.name, t[day.name])}
+                                                                    >
+                                                                        {t[day.name] || '-'}
+                                                                    </td>
+                                                                ))}
+                                                            </tr>
+                                                            {t.time === '10:00-12:00' && (
+                                                                <tr className="pause-row">
+                                                                    <td>12:00-13:00</td>
+                                                                    {days.map((_, idx) => (
+                                                                        <td key={idx}>Pause</td>
+                                                                    ))}
+                                                                </tr>
+                                                            )}
+                                                        </React.Fragment>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="card p-4 text-center text-gray-500 dark:text-gray-400">
+                                        Sélectionnez un groupe et une date, puis générez l'emploi du temps.
+                                    </div>
+                                )
+                            ) : selectedTeacher && editedTeacherTimetables[selectedTeacher]?.length ? (
+                                <div className="card mb-6">
+                                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                                        Emploi du Temps - {selectedTeacher} (Semaine du {selectedDate})
+                                    </h3>
+                                    <div className="overflow-x-auto">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    {teacherHeaders.map((header, index) => (
+                                                        <th key={index}>{header}</th>
+                                                    ))}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {editedTeacherTimetables[selectedTeacher].map((course, index) => (
+                                                    <tr
+                                                        key={index}
+                                                        onClick={() => handleCellClick(course.time, course.day, course, index)}
+                                                        className={isCellEdited(course.time, course.day, index) ? 'edited-cell' : ''}
+                                                    >
+                                                        <td>{course.dayDisplay}</td>
+                                                        <td>{course.time}</td>
+                                                        <td>{course.subject}</td>
+                                                        <td>{course.group}</td>
+                                                        <td>{course.room}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="card p-4 text-center text-gray-500 dark:text-gray-400">
+                                    Sélectionnez un enseignant et une date, puis générez l'emploi du temps.
+                                </div>
+                            )}
+                        </div>
+                        <EditModal
+                            isOpen={isModalOpen}
+                            onClose={() => setIsModalOpen(false)}
+                            onSave={handleSaveEdit}
+                            viewMode={viewMode}
+                            initialValue={editingCell?.value}
+                            time={editingCell?.time}
+                            day={editingCell?.day}
+                            groups={groups}
+                            teachers={teachers}
+                            rooms={rooms}
+                        />
+                    </main>
+                </div>
+            );
+        }
+
+        const rootElement = document.getElementById('root');
+        if (rootElement) {
+            const root = ReactDOM.createRoot(rootElement);
+            root.render(
+                <ErrorBoundary>
+                    <ExportationPage />
+                </ErrorBoundary>
+            );
+        } else {
+            console.error('Root element not found');
+        }
+    </script>
+</body>
+</html>

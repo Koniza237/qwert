@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Tableau de bord étudiant pour Fareno University">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="shortcut icon" href="FARENOUNIVERSITY.jpg" type="image/x-icon">
+    <title>Tableau de Bord Étudiant - Fareno University</title>
+    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.20.15/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7fa;
+        }
+
+        #background-image {
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            background-size: 200% 200%;
+            animation: gradientShift 20s ease-in-out infinite;
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            opacity: 0.9;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        #root {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            background-color: rgba(255, 255, 255, 0.95);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        .bounce {
+            animation: bounce 2s infinite;
+        }
+
+        .pulse {
+            animation: pulse 2.5s infinite;
+        }
+
+        .button-click {
+            animation: clickEffect 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes clickEffect {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.97); }
+            100% { transform: scale(1); }
+        }
+
+        .hover-effect {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .hover-effect:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .message-bubble {
+            max-width: 80%;
+            padding: 12px 18px;
+            margin: 8px 12px;
+            border-radius: 20px;
+            word-wrap: break-word;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-message {
+            background: linear-gradient(45deg, #10b981, #34d399);
+            color: white;
+            align-self: flex-end;
+        }
+
+        .ai-message {
+            background-color: #e5e7eb;
+            color: #1f2937;
+            align-self: flex-start;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .typing-dot {
+            width: 10px;
+            height: 10px;
+            background-color: #6b7280;
+            border-radius: 50%;
+            margin: 0 5px;
+            animation: typing 1.2s infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.3s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.6s; }
+
+        @keyframes typing {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        .full-height {
+            min-height: calc(100vh - 5rem);
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-size: 0.9rem;
+            margin-top: 0.75rem;
+            font-weight: 500;
+        }
+
+        .success-message {
+            color: #15803d;
+            font-size: 0.9rem;
+            margin-top: 0.75rem;
+            font-weight: 500;
+        }
+
+        .gradient-button {
+            background: linear-gradient(45deg, #10b981, #34d399);
+            transition: background 0.3s ease;
+        }
+
+        .gradient-button:hover {
+            background: linear-gradient(45deg, #059669, #10b981);
+        }
+
+        .gradient-purple-button {
+            background: linear-gradient(45deg, #7c3aed, #a78bfa);
+            transition: background 0.3s ease;
+        }
+
+        .gradient-purple-button:hover {
+            background: linear-gradient(45deg, #6d28d9, #8b5cf6);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeOut 1s ease-in-out forwards;
+            animation-delay: 0.7s;
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; display: none; }
+        }
+
+        .profile-photo {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid #e5e7eb;
+        }
+
+        .photo-placeholder {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: #d1d5db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            font-size: 1rem;
+            cursor: pointer;
+            border: 2px solid #e5e7eb;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .table-container table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table-container th,
+        .table-container td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .table-container th {
+            background: linear-gradient(45deg, #10b981, #34d399);
+            color: white;
+            font-weight: 600;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #1e3a8a, #2563eb);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .sidebar button {
+            font-weight: 500;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar button:hover {
+            transform: scale(1.02);
+            background-color: #3b82f6;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: #ffffff33;
+            transform: translateY(-50%);
+            transition: width 0.3s ease;
+        }
+
+        .sidebar button:hover::after {
+            width: 100%;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        .logo-placeholder {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background-color: #ffffff33;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        header {
+            background: linear-gradient(90deg, #1e3a8a, #2563eb);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .notification-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #dc2626;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex">
+    <div id="background-image"></div>
+    <div id="loadingOverlay" class="loading-overlay">
+        <div className="text-3xl font-semibold text-gray-800 animate-spin">🎓</div>
+    </div>
+    <div id="root" class="w-full"></div>
+    <div class="absolute top-4 left-4 text-white text-xl bounce" aria-hidden="true">👨‍🎓</div>
+    <div class="fixed bottom-4 right-4 bg-gray-900 text-white text-sm rounded-lg px-4 py-2 shadow-lg">
+        <span id="datetime" aria-live="polite"></span>
+    </div>
+
+    <script type="text/babel">
+        function StudentDashboard() {
+            const [activeSection, setActiveSection] = React.useState('mesdonnees');
+            const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+            const [messages, setMessages] = React.useState([]);
+            const [documents, setDocuments] = React.useState([]);
+            const [timetableDocuments, setTimetableDocuments] = React.useState([]);
+            const [courses, setCourses] = React.useState([]);
+            const [grades, setGrades] = React.useState([]);
+            const [aiInput, setAiInput] = React.useState('');
+            const [aiMessages, setAiMessages] = React.useState([]);
+            const [aiError, setAiError] = React.useState('');
+            const [aiLoading, setAiLoading] = React.useState(false);
+            const [timeSpent, setTimeSpent] = React.useState(0);
+            const [isOnline, setIsOnline] = React.useState(navigator.onLine);
+            const [gradeInput, setGradeInput] = React.useState({ subject: '', grade: '', coefficient: '' });
+            const [loading, setLoading] = React.useState({ messages: true, documents: true, timetable: true, courses: true, grades: true });
+            const [error, setError] = React.useState({ messages: '', documents: '', timetable: '', courses: '', grades: '' });
+            const [user, setUser] = React.useState(null);
+            const [profilePhoto, setProfilePhoto] = React.useState(null);
+
+            React.useEffect(() => {
+                const startTime = Date.now();
+                const timer = setInterval(() => {
+                    setTimeSpent(Math.floor((Date.now() - startTime) / 1000));
+                }, 1000);
+
+                const updateDateTime = () => {
+                    const now = new Date();
+                    const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                    const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Africa/Lagos' };
+                    const date = now.toLocaleDateString('fr-FR', optionsDate);
+                    const time = now.toLocaleTimeString('fr-FR', optionsTime);
+                    document.getElementById('datetime').textContent = `${time} WAT, ${date}`;
+                };
+                updateDateTime();
+                const dateTimeTimer = setInterval(updateDateTime, 1000);
+
+                const savedUser = localStorage.getItem('connectstudent');
+                if (savedUser) {
+                    const parsedUser = JSON.parse(savedUser);
+                    setUser({ username: parsedUser.username || 'Étudiant' });
+                }
+
+                const savedPhoto = localStorage.getItem('studentProfilePhoto');
+                if (savedPhoto) {
+                    try {
+                        setProfilePhoto(JSON.parse(savedPhoto));
+                    } catch {
+                        setProfilePhoto(savedPhoto);
+                    }
+                }
+
+                fetchMessages();
+                fetchDocuments();
+                fetchTimetableDocuments();
+                fetchCourses();
+                fetchGrades();
+
+                const handleOnline = () => setIsOnline(true);
+                const handleOffline = () => setIsOnline(false);
+                window.addEventListener('online', handleOnline);
+                window.addEventListener('offline', handleOffline);
+
+                return () => {
+                    clearInterval(timer);
+                    clearInterval(dateTimeTimer);
+                    window.removeEventListener('online', handleOnline);
+                    window.removeEventListener('offline', handleOffline);
+                };
+            }, []);
+
+            const formatTime = (seconds) => {
+                const hrs = Math.floor(seconds / 3600);
+                const mins = Math.floor((seconds % 3600) / 60);
+                const secs = seconds % 60;
+                return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            };
+
+            const fetchMessages = async () => {
+                try {
+                    const response = await fetch('/api/messages');
+                    if (!response.ok) throw new Error('Erreur lors du chargement des messages');
+                    const data = await response.json();
+                    setMessages(data.map(msg => ({ ...msg, read: msg.read || false })));
+                    setError(prev => ({ ...prev, messages: '' }));
+                } catch (err) {
+                    setError(prev => ({ ...prev, messages: err.message }));
+                } finally {
+                    setLoading(prev => ({ ...prev, messages: false }));
+                }
+            };
+
+            const fetchDocuments = async () => {
+                try {
+                    const response = await fetch('/api/documents');
+                    if (!response.ok) throw new Error('Erreur lors du chargement des documents');
+                    const data = await response.json();
+                    setDocuments(data);
+                    setError(prev => ({ ...prev, documents: '' }));
+                } catch (err) {
+                    setError(prev => ({ ...prev, documents: err.message }));
+                } finally {
+                    setLoading(prev => ({ ...prev, documents: false }));
+                }
+            };
+
+            const fetchTimetableDocuments = async () => {
+                try {
+                    const response = await fetch('/api/timetable-documents');
+                    if (!response.ok) throw new Error('Erreur lors du chargement des documents d\'emploi du temps');
+                    const data = await response.json();
+                    setTimetableDocuments(data.documents || []);
+                    setError(prev => ({ ...prev, timetable: '' }));
+                } catch (err) {
+                    setError(prev => ({ ...prev, timetable: err.message }));
+                } finally {
+                    setLoading(prev => ({ ...prev, timetable: false }));
+                }
+            };
+
+            const fetchCourses = async () => {
+                try {
+                    const response = await fetch('/api/courses');
+                    if (!response.ok) throw new Error('Erreur lors du chargement des cours');
+                    const data = await response.json();
+                    setCourses(data);
+                    setError(prev => ({ ...prev, courses: '' }));
+                } catch (err) {
+                    setError(prev => ({ ...prev, courses: err.message }));
+                } finally {
+                    setLoading(prev => ({ ...prev, courses: false }));
+                }
+            };
+
+            const fetchGrades = async () => {
+                try {
+                    const response = await fetch('/api/grades');
+                    if (!response.ok) throw new Error('Erreur lors du chargement des notes');
+                    const data = await response.json();
+                    setGrades(data);
+                    setError(prev => ({ ...prev, grades: '' }));
+                } catch (err) {
+                    setError(prev => ({ ...prev, grades: err.message }));
+                } finally {
+                    setLoading(prev => ({ ...prev, grades: false }));
+                }
+            };
+
+            const handleDocumentDownload = async (documentId, documentName) => {
+                try {
+                    const response = await fetch(`/api/documents/${documentId}/download`);
+                    if (!response.ok) throw new Error('Erreur lors du téléchargement');
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = documentName;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+                } catch (err) {
+                    alert('Erreur lors du téléchargement: ' + err.message);
+                }
+            };
+
+            const handleTimetableDocumentDelete = async (documentId) => {
+                if (!window.confirm('Voulez-vous vraiment supprimer ce document d\'emploi du temps ?')) return;
+                try {
+                    const response = await fetch(`/api/timetable-documents/${documentId}`, {
+                        method: 'DELETE'
+                    });
+                    if (!response.ok) throw new Error('Erreur lors de la suppression du document');
+                    setTimetableDocuments(timetableDocuments.filter(doc => doc.id !== documentId));
+                    alert('Document supprimé avec succès');
+                } catch (err) {
+                    alert('Erreur lors de la suppression: ' + err.message);
+                }
+            };
+
+            const handleCourseDownload = async (courseId, courseName) => {
+                try {
+                    const response = await fetch(`/api/courses/${courseId}/download`);
+                    if (!response.ok) throw new Error('Erreur lors du téléchargement');
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = courseName;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+                } catch (err) {
+                    alert('Erreur lors du téléchargement: ' + err.message);
+                }
+            };
+
+            const handleGradeSubmit = async (e) => {
+                e.preventDefault();
+                if (!gradeInput.subject || !gradeInput.grade || !gradeInput.coefficient) {
+                    alert('Veuillez remplir tous les champs.');
+                    return;
+                }
+                try {
+                    const response = await fetch('/api/grades', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            subject: gradeInput.subject,
+                            grade: parseFloat(gradeInput.grade),
+                            coefficient: parseInt(gradeInput.coefficient),
+                            addedBy: 'Étudiant'
+                        })
+                    });
+                    if (!response.ok) throw new Error('Erreur lors de l\'ajout de la note');
+                    const newGrade = await response.json();
+                    setGrades([...grades, newGrade]);
+                    alert('Note ajoutée avec succès');
+                    setGradeInput({ subject: '', grade: '', coefficient: '' });
+                } catch (err) {
+                    alert('Erreur lors de l\'ajout: ' + err.message);
+                }
+            };
+
+            const handleGradeUpload = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                try {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('uploadedBy', 'Étudiant');
+                    const response = await fetch('/api/grades/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    if (!response.ok) throw new Error('Erreur lors de l\'upload de la note');
+                    const newGrade = await response.json();
+                    setGrades([...grades, newGrade]);
+                    alert('Fichier de notes uploadé avec succès');
+                } catch (err) {
+                    alert('Erreur lors de l\'upload: ' + err.message);
+                }
+            };
+
+            const handleGradeDelete = async (gradeId) => {
+                if (!window.confirm('Voulez-vous vraiment supprimer cette note ?')) return;
+                try {
+                    const response = await fetch(`/api/grades/${gradeId}`, {
+                        method: 'DELETE'
+                    });
+                    if (!response.ok) throw new Error('Erreur lors de la suppression de la note');
+                    setGrades(grades.filter(grade => grade.id !== gradeId));
+                    alert('Note supprimée avec succès');
+                } catch (err) {
+                    alert('Erreur lors de la suppression: ' + err.message);
+                }
+            };
+
+            const handleAiSubmit = async (e) => {
+                e.preventDefault();
+                if (!aiInput.trim()) {
+                    setAiError('Veuillez entrer une question.');
+                    return;
+                }
+                if (!isOnline) {
+                    setAiError('L\'IA ne peut pas répondre car vous êtes hors ligne.');
+                    return;
+                }
+
+                const newMessage = { id: Date.now(), content: aiInput, type: 'user', timestamp: new Date().toISOString() };
+                setAiMessages([...aiMessages, newMessage]);
+                setAiInput('');
+                setAiLoading(true);
+                try {
+                    const response = await fetch('/api/ai', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ prompt: aiInput })
+                    });
+                    if (!response.ok) throw new Error('Erreur API');
+                    const data = await response.json();
+                    const aiMessage = { id: data.id || Date.now() + 1, content: data.response, type: 'ai', timestamp: new Date().toISOString() };
+                    setAiMessages(prev => [...prev, aiMessage]);
+                    setAiError('');
+                } catch (error) {
+                    setAiError('Erreur: ' + error.message);
+                } finally {
+                    setAiLoading(false);
+                }
+            };
+
+            const handleAiSuggestion = (suggestion) => {
+                setAiInput(suggestion);
+            };
+
+            const clearConversation = () => {
+                if (window.confirm('Voulez-vous effacer la conversation ?')) {
+                    setAiMessages([]);
+                    setAiError('');
+                }
+            };
+
+            const handlePhotoUpload = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                if (!file.type.startsWith('image/')) {
+                    alert('Veuillez sélectionner une image valide.');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const imageData = reader.result;
+                    setProfilePhoto(imageData);
+                    localStorage.setItem('studentProfilePhoto', imageData);
+                };
+                reader.readAsDataURL(file);
+            };
+
+            const handleLogout = () => {
+                if (window.confirm('Voulez-vous vraiment vous déconnecter ?')) {
+                    localStorage.removeItem('connectstudent');
+                    localStorage.removeItem('studentProfilePhoto');
+                    window.location.href = 'choix.html';
+                }
+            };
+
+            const handleClick = (e) => {
+                e.target.classList.add('button-click');
+                setTimeout(() => e.target.classList.remove('button-click'), 300);
+            };
+
+            React.useEffect(() => {
+                if (activeSection === 'messagerie') {
+                    setMessages(prev => prev.map(msg => ({ ...msg, read: true })));
+                }
+            }, [activeSection]);
+
+            const unreadMessagesCount = messages.filter(msg => !msg.read).length;
+
+            const sections = {
+                mesdonnees: (
+                    <div className="fade-in full-height">
+                        <div className="p-6 max-w-7xl mx-auto">
+                            <h2 className="text-2xl font-bold text-gray-800 mb-6">Mes Données 📊</h2>
+                            {error.grades && <p className="error-message">{error.grades}</p>}
+                            <div className="card">
+                                <h3 className="text-xl font-semibold text-gray-800 mb-4">Mes Cours 📚</h3>
+                                {loading.courses ? (
+                                    <div className="text-center text-gray-500">Chargement des cours... ⏳</div>
+                                ) : error.courses ? (
+                                    <p className="error-message">{error.courses}</p>
+                                ) : (
+                                    <div className="table-container">
+                                        <table className="w-full">
+                                            <thead>
+                                                <tr>
+                                                    <th className="p-4">Nom du Cours</th>
+                                                    <th className="p-4">Ajouté par</th>
+                                                    <th className="p-4">Date d'Ajout</th>
+                                                    <th className="p-4">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {courses.length > 0 ? (
+                                                    courses.map((course) => (
+                                                        <tr key={course.id} className="border-b hover:bg-gray-50">
+                                                            <td className="p-4">{course.name}</td>
+                                                            <td className="p-4">{course.uploadedBy}</td>
+                                                            <td className="p-4">{course.uploadDate}</td>
+                                                            <td className="p-4">
+                                                                <button
+                                                                    className="gradient-button text-white px-4 py-2 rounded-lg hover-effect focus:outline-none focus:ring-2 focus:ring-green-500"
+                                                                    onClick={() => handleCourseDownload(course.id, course.name)}
+                                                                    onMouseDown={handleClick}
+                                                                    aria-label={`Télécharger ${course.name}`}
+                                                                >
+                                                                    Télécharger
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))
+                                                ) : (
+                                                    <tr>
+                                                        <td colSpan="4" className="p-4 text-center text-gray-500">
+                                                            Aucun cours disponible
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="card">
+                                <h3 className="text-xl font-semibold text-gray-800 mb-4">Mes Notes 📝</h3>
+                                <div className="mb-6">
+                                    <h4 className="text-lg font-semibold mb-3">Ajouter une Note</h4>
+                                    <form onSubmit={handleGradeSubmit} className="space-y-4">
+                                        <input
+                                            type="text"
+                                            placeholder="Matière"
+                                            className="border p-3 rounded-lg w-full bg-gray-50 text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                            value={gradeInput.subject}
+                                            onChange={(e) => setGradeInput({ ...gradeInput, subject: e.target.value })}
+                                            aria-label="Matière"
+                                        />
+                                        <input
+                                            type="number"
+                                            placeholder="Note (0-20)"
+                                            className="border p-3 rounded-lg w-full bg-gray-50 text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                            value={gradeInput.grade}
+                                            onChange={(e) => setGradeInput({ ...gradeInput, grade: e.target.value })}
+                                            min="0"
+                                            max="20"
+                                            step="0.1"
+                                            aria-label="Note"
+                                        />
+                                        <input
+                                            type="number"
+                                            placeholder="Coefficient"
+                                            className="border p-3 rounded-lg w-full bg-gray-50 text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                            value={gradeInput.coefficient}
+                                            onChange={(e) => setGradeInput({ ...gradeInput, coefficient: e.target.value })}
+                                            min="1"
+                                            aria-label="Coefficient"
+                                        />
+                                        <button
+                                            type="submit"
+                                            className="gradient-purple-button text-white py-2 px-6 rounded-lg hover-effect focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                            onClick={handleClick}
+                                            aria-label="Ajouter la note"
+                                        >
+                                            Ajouter
+                                        </button>
+                                    </form>
+                                    <input
+                                        type="file"
+                                        accept=".pdf,.doc,.docx"
+                                        onChange={handleGradeUpload}
+                                        className="mt-4 text-gray-600"
+                                        aria-label="Uploader un fichier de notes"
+                                    />
+                                </div>
+                                {loading.grades ? (
+                                    <div className="text-center text-gray-500">Chargement des notes... ⏳</div>
+                                ) : error.grades ? (
+                                    <p className="error-message">{error.grades}</p>
+                                ) : (
+                                    <div className="table-container">
+                                        <table className="w-full">
+                                            <thead>
+                                                <tr>
+                                                    <th className="p-4">Matière</th>
+                                                    <th className="p-4">Note</th>
+                                                    <th className="p-4">Coefficient</th>
+                                                    <th className="p-4">Ajouté par</th>
+                                                    <th className="p-4">Date d'Ajout</th>
+                                                    <th className="p-4">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {grades.length > 0 ? (
+                                                    grades.map(grade => (
+                                                        <tr key={grade.id} className="border-b hover:bg-gray-50">
+                                                            <td className="p-4">{grade.subject}</td>
+                                                            <td className="p-4">{grade.grade !== null ? grade.grade : '-'}</td>
+                                                            <td className="p-4">{grade.coefficient !== null ? grade.coefficient : '-'}</td>
+                                                            <td className="p-4">{grade.addedBy}</td>
+                                                            <td className="p-4">{grade.addDate}</td>
+                                                            <td className="p-4">
+                                                                <button
+                                                                    className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 hover-effect focus:outline-none focus:ring-2 focus:ring-red-500"
+                                                                    onClick={() => handleGradeDelete(grade.id)}
+                                                                    onMouseDown={handleClick}
+                                                                    aria-label={`Supprimer la note pour ${grade.subject}`}
+                                                                >
+                                                                    Supprimer
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))
+                                                ) : (
+                                                    <tr>
+                                                        <td colSpan="6" className="p-4 text-center text-gray-500">
+                                                            Aucune note disponible
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                ),
+                timetable: (
+                    <div className="p-6 fade-in full-height">
+                        <div className="max-w-7xl mx-auto">
+                            <h2 className="text-2xl font-bold text-gray-800 mb-6">Emploi du Temps 🕒</h2>
+                            <div className="card">
+                                {loading.timetable ? (
+                                    <div className="text-center text-gray-500">Chargement des documents d'emploi du temps... ⏳</div>
+                                ) : error.timetable ? (
+                                    <p className="error-message">{error.timetable}</p>
+                                ) : (
+                                    <div className="table-container">
+                                        <table className="w-full">
+                                            <thead>
+                                                <tr>
+                                                    <th className="p-4">Titre</th>
+                                                    <th className="p-4">Nom du Fichier</th>
+                                                    <th className="p-4">Ajouté par</th>
+                                                    <th className="p-4">Date d'Ajout</th>
+                                                    <th className="p-4">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {timetableDocuments.length > 0 ? (
+                                                    timetableDocuments.map(doc => (
+                                                        <tr key={doc.id} className="border-b hover:bg-gray-50">
+                                                            <td className="p-4">{doc.title}</td>
+                                                            <td className="p-4">{doc.fileName}</td>
+                                                            <td className="p-4">{doc.uploadedBy}</td>
+                                                            <td className="p-4">{new Date(doc.uploadDate).toLocaleString('fr-FR')}</td>
+                                                            <td className="p-4">
+                                                                <button
+                                                                    className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 hover-effect focus:outline-none focus:ring-2 focus:ring-red-500"
+                                                                    onClick={() => handleTimetableDocumentDelete(doc.id)}
+                                                                    onMouseDown={handleClick}
+                                                                    aria-label={`Supprimer ${doc.title}`}
+                                                                >
+                                                                    Supprimer
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))
+                                                ) : (
+                                                    <tr>
+                                                        <td colSpan="5" className="p-4 text-center text-gray-500">
+                                                            Aucun document d'emploi du temps disponible
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                ),
+                messagerie: (
+                    <div className="p-6 fade-in full-height">
+                        <div className="max-w-7xl mx-auto">
+                            <h2 className="text-2xl font-bold text-gray-800 mb-6">Messagerie 💬</h2>
+                            <div className="card">
+                                {loading.messages ? (
+                                    <div className="text-center text-gray-500">Chargement des messages... ⏳</div>
+                                ) : error.messages ? (
+                                    <p className="error-message">{error.messages}</p>
+                                ) : (
+                                    <div className="chat-area bg-gray-50 p-6 rounded-lg h-[calc(100vh-12rem)] overflow-y-auto">
+                                        {messages.length > 0 ? (
+                                            messages.map((msg, index) => (
+                                                <div key={index} className="message-bubble fade-in">
+                                                    <div className="text-gray-800">{msg.content}</div>
+                                                    <div className="text-xs text-gray-500 mt-2">
+                                                        Reçu le {new Date(msg.timestamp).toLocaleString('fr-FR')}
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="text-center text-gray-500 mt-4">
+                                                Aucun message reçu.
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                ),
+                documents: (
+                    <div className="p-6 fade-in full-height">
+                        <div className="max-w-7xl mx-auto">
+                            <h2 className="text-2xl font-bold text-gray-800 mb-6">Documents 📄</h2>
+                            <div className="card">
+                                {loading.documents ? (
+                                    <div className="text-center text-gray-500">Chargement des documents... ⏳</div>
+                                ) : error.documents ? (
+                                    <p className="error-message">{error.documents}</p>
+                                ) : (
+                                    <div className="table-container">
+                                        <table className="w-full">
+                                            <thead>
+                                                <tr>
+                                                    <th className="p-4">Titre</th>
+                                                    <th className="p-4">Catégorie</th>
+                                                    <th className="p-4">Nom du Fichier</th>
+                                                    <th className="p-4">Ajouté par</th>
+                                                    <th className="p-4">Date d'Ajout</th>
+                                                    <th className="p-4">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {documents.length > 0 ? (
+                                                    documents.map(doc => (
+                                                        <tr key={doc.id} className="border-b hover:bg-gray-50">
+                                                            <td className="p-4">{doc.title}</td>
+                                                            <td className="p-4">{doc.category}</td>
+                                                            <td className="p-4">{doc.fileName}</td>
+                                                            <td className="p-4">{doc.uploadedBy}</td>
+                                                            <td className="p-4">{doc.uploadDate}</td>
+                                                            <td className="p-4">
+                                                                <button
+                                                                    className="gradient-button text-white px-4 py-2 rounded-lg hover-effect focus:outline-none focus:ring-2 focus:ring-green-500"
+                                                                    onClick={() => handleDocumentDownload(doc.id, doc.fileName)}
+                                                                    onMouseDown={handleClick}
+                                                                    aria-label={`Télécharger ${doc.fileName}`}
+                                                                >
+                                                                    Télécharger
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))
+                                                ) : (
+                                                    <tr>
+                                                        <td colSpan="6" className="p-4 text-center text-gray-500">
+                                                            Aucun document disponible
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                ),
+                ia: (
+                    <div className="p-6 fade-in full-height">
+                        <div className="max-w-7xl mx-auto">
+                            <h2 className="text-2xl font-bold text-gray-800 mb-6">Assistant IA 🤖</h2>
+                            <div className="card">
+                                <div className="bg-gray-50 p-6 rounded-lg h-[calc(100vh-16rem)] overflow-y-auto mb-6 flex flex-col">
+                                    {aiMessages.length > 0 ? (
+                                        aiMessages.map((msg) => (
+                                            <div
+                                                key={msg.id}
+                                                className={`message-bubble fade-in ${msg.type === 'user' ? 'user-message' : 'ai-message'}`}
+                                            >
+                                                <div className="text-gray-800">{msg.content}</div>
+                                                <div className="text-xs text-gray-500 mt-2">
+                                                    {new Date(msg.timestamp).toLocaleString('fr-FR')}
+                                                </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="text-center text-gray-500 mt-4">
+                                            Commencez une conversation avec l'IA !
+                                        </div>
+                                    )}
+                                    {aiLoading && (
+                                        <div className="typing-indicator fade-in">
+                                            <div className="typing-dot"></div>
+                                            <div className="typing-dot"></div>
+                                            <div className="typing-dot"></div>
+                                        </div>
+                                    )}
+                                </div>
+                                {aiError && <p className="error-message mb-4">{aiError}</p>}
+                                <div className="flex flex-wrap gap-3 mb-6">
+                                    {['Comment planifier mes études ?', 'Quels sont les prérequis pour un cours ?', 'Conseils pour réussir les examens'].map((suggestion) => (
+                                        <button
+                                            key={suggestion}
+                                            className="bg-gray-200 text-gray-800 px-4 py-2 rounded-full hover:bg-gray-300 hover-effect focus:outline-none focus:ring-2 focus:ring-green-500"
+                                            onClick={() => handleAiSuggestion(suggestion)}
+                                            onMouseDown={handleClick}
+                                            aria-label={`Poser la question: ${suggestion}`}
+                                        >
+                                            {suggestion}
+                                        </button>
+                                    ))}
+                                </div>
+                                <form onSubmit={handleAiSubmit} className="space-y-4">
+                                    <textarea
+                                        placeholder="Posez une question..."
+                                        className="border p-4 rounded-lg w-full h-28 bg-gray-50 text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                        value={aiInput}
+                                        onChange={(e) => setAiInput(e.target.value)}
+                                        aria-label="Question pour l'assistant IA"
+                                    ></textarea>
+                                    <div className="flex space-x-3">
+                                        <button
+                                            type="submit"
+                                            className="gradient-purple-button text-white py-2 px-6 rounded-lg hover-effect pulse focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                            disabled={aiLoading}
+                                            onClick={handleClick}
+                                            aria-label="Envoyer la question"
+                                        >
+                                            {aiLoading ? 'Chargement... ⏳' : 'Envoyer'}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="bg-red-500 text-white py-2 px-6 rounded-lg hover:bg-red-600 hover-effect focus:outline-none focus:ring-2 focus:ring-red-500"
+                                            onClick={clearConversation}
+                                            onMouseDown={handleClick}
+                                            aria-label="Effacer la conversation"
+                                        >
+                                            Effacer
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                ),
+                aide: (
+                    <div className="p-6 fade-in full-height">
+                        <div className="max-w-7xl mx-auto">
+                            <h2 className="text-2xl font-bold text-gray-800 mb-6">Aide ❓</h2>
+                            <div className="card">
+                                <p className="mb-4 text-gray-600">Recommandations pour les étudiants :</p>
+                                <ul className="text-gray-600 space-y-3">
+                                    <li>Consultez régulièrement vos cours et notes 📚📝.</li>
+                                    <li>Utilisez l'assistant IA 🤖 pour clarifier vos doutes.</li>
+                                    <li>Contactez le support via la messagerie 💬 en cas de besoin.</li>
+                                </ul>
+                                <a
+                                    href="aideetu.html"
+                                    className="mt-6 inline-block gradient-purple-button text-white py-2 px-6 rounded-lg hover-effect focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    onClick={handleClick}
+                                    aria-label="Accéder au guide étudiant"
+                                >
+                                    Accéder au Guide
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                )
+            };
+
+            return (
+                <div className="flex min-h-screen w-full">
+                    <div className={`sidebar text-white w-72 space-y-6 py-8 px-4 fixed inset-y-0 left-0 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 transition duration-300 ease-in-out z-20`} role="navigation">
+                        <div className="logo-container">
+                            <img
+                                src="FARENOUNIVERSITY.jpg"
+                                alt="Logo Fareno University"
+                                className="logo-placeholder"
+                                onError={(e) => {
+                                    e.target.style.display = 'none';
+                                    e.target.nextSibling.style.paddingLeft = '0';
+                                }}
+                            />
+                            <h1 className="text-3xl font-bold text-white">Fareno University</h1>
+                        </div>
+                        <nav className="space-y-2">
+                            {['mesdonnees', 'timetable', 'messagerie', 'documents', 'ia', 'aide'].map(section => (
+                                <button
+                                    key={section}
+                                    className={`w-full text-left py-3 px-4 rounded-lg transition duration-200 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 ${activeSection === section ? 'bg-blue-600' : ''}`}
+                                    onClick={() => {
+                                        setActiveSection(section);
+                                        if (window.innerWidth < 768) setIsSidebarOpen(false);
+                                    }}
+                                    onMouseDown={handleClick}
+                                    aria-label={`Aller à ${section}`}
+                                >
+                                    <span className="flex items-center">
+                                        {section === 'mesdonnees' ? 'Mes Données 📊' :
+                                         section === 'timetable' ? 'Emploi du Temps 🕒' :
+                                         section === 'messagerie' ? 'Messagerie 💬' :
+                                         section === 'documents' ? 'Documents 📄' :
+                                         section === 'ia' ? 'Assistant IA 🤖' :
+                                         'Aide ❓'}
+                                        {section === 'messagerie' && unreadMessagesCount > 0 && (
+                                            <span className="notification-badge">{unreadMessagesCount}</span>
+                                        )}
+                                    </span>
+                                </button>
+                            ))}
+                            <button
+                                className="w-full text-left py-3 px-4 rounded-lg transition bg-red-600 hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
+                                onClick={handleLogout}
+                                onMouseDown={handleClick}
+                                aria-label="Se déconnecter"
+                            >
+                                Déconnexion 🚪
+                            </button>
+                        </nav>
+                    </div>
+                    <div className="flex-1 flex flex-col w-full">
+                        <header className="bg-blue-800 text-white p-5 flex justify-between items-center">
+                            <div className="flex items-center">
+                                <button
+                                    className="md:hidden text-white focus:outline-none focus:ring-2 focus:ring-white"
+                                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                                    aria-label="Ouvrir le menu"
+                                >
+                                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                                    </svg>
+                                </button>
+                                <h1 className="text-2xl font-bold ml-4">Tableau de Bord Étudiant</h1>
+                            </div>
+                            <div className="flex items-center space-x-6">
+                                <div className="flex items-center space-x-3">
+                                    <span className="text-white font-medium">{user ? `Bienvenue, ${user.username}` : 'Étudiant'}</span>
+                                    <label htmlFor="photoUpload" className="cursor-pointer">
+                                        {profilePhoto ? (
+                                            <img
+                                                src={profilePhoto}
+                                                alt="Photo de profil"
+                                                className="profile-photo"
+                                            />
+                                        ) : (
+                                            <div className="photo-placeholder">📷</div>
+                                        )}
+                                    </label>
+                                    <input
+                                        id="photoUpload"
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handlePhotoUpload}
+                                        className="hidden"
+                                        aria-label="Changer la photo de profil"
+                                    />
+                                </div>
+                                <span className={`px-3 py-1 rounded-lg text-sm font-medium ${isOnline ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'}`}>
+                                    {isOnline ? 'En ligne' : 'Hors ligne'}
+                                </span>
+                                <div className="text-sm font-medium">Temps passé : {formatTime(timeSpent)}</div>
+                            </div>
+                        </header>
+                        <main className="flex-1 p-6 w-full" role="main">{sections[activeSection]}</main>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<StudentDashboard />, document.getElementById('root'));
+
+        document.getElementById('loadingOverlay').addEventListener('animationend', () => {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        });
+    </script>
+</body>
+</html>

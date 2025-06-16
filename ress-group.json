@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "name": "Bachelor 1 A",
+    "studentCount": 69,
+    "lastUpdated": "2025-06-15T12:37:11.847Z"
+  },
+  {
+    "id": 2,
+    "name": "Bachelor 2",
+    "studentCount": 73,
+    "lastUpdated": "2025-06-15T12:38:27.103Z"
+  },
+  {
+    "id": 3,
+    "name": "Bachelor 1 B",
+    "studentCount": 63,
+    "lastUpdated": "2025-06-15T12:37:39.884Z"
+  },
+  {
+    "id": 4,
+    "name": "Bachelor 3",
+    "studentCount": 58,
+    "lastUpdated": "2025-06-15T12:41:18.363Z"
+  },
+  {
+    "id": 5,
+    "name": "Master 1",
+    "studentCount": 50,
+    "lastUpdated": "2025-06-15T12:41:40.241Z"
+  },
+  {
+    "id": 6,
+    "name": "Master 2",
+    "studentCount": 34,
+    "lastUpdated": "2025-06-15T12:41:59.534Z"
+  }
+]

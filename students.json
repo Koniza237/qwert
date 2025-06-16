@@ -1,0 +1,48 @@
+[
+  {
+    "username": "student1",
+    "password": "Student123!"
+  },
+  {
+    "id": 1,
+    "name": "Atangana",
+    "password": "12345678",
+    "group": "Bachelor 1 A",
+    "lastUpdated": "2025-06-15T12:37:11.848Z"
+  },
+  {
+    "id": 2,
+    "name": "Fareno",
+    "password": "12345678",
+    "group": "Bachelor 1 B",
+    "lastUpdated": "2025-06-15T12:37:39.886Z"
+  },
+  {
+    "id": 3,
+    "name": "Gif",
+    "password": "12345678",
+    "group": "Bachelor 2",
+    "lastUpdated": "2025-06-15T12:38:27.105Z"
+  },
+  {
+    "id": 4,
+    "name": "Jeremy",
+    "password": "12345678",
+    "group": "Bachelor 3",
+    "lastUpdated": "2025-06-15T12:41:18.365Z"
+  },
+  {
+    "id": 5,
+    "name": "Yanis",
+    "password": "12345678",
+    "group": "Master 1",
+    "lastUpdated": "2025-06-15T12:41:40.242Z"
+  },
+  {
+    "id": 6,
+    "name": "Koni",
+    "password": "12345678",
+    "group": "Master 2",
+    "lastUpdated": "2025-06-15T12:41:59.554Z"
+  }
+]

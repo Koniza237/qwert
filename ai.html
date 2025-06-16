@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="FARENOUNIVERSITY.jpg" type="image/x-icon">
+    <title>Assistant IA - Fareno University</title>
+    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.20.15/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        #background-image {
+            background: linear-gradient(135deg, #1e3a8a, #6b7280, #1e3a8a);
+            background-size: 200% 200%;
+            animation: gradientShift 15s ease-in-out infinite;
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        #root {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            background-color: rgba(255, 255, 255, 0.95);
+        }
+        .card {
+            transition: transform 0.3s ease, opacity 0.5s ease;
+            opacity: 1; /* Force l'affichage initial */
+            transform: translateY(0);
+        }
+        .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        .message-bubble {
+            max-width: 80%;
+            padding: 12px 18px;
+            margin: 8px 0;
+            border-radius: 20px;
+            word-wrap: break-word;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .user-message {
+            background: linear-gradient(45deg, #7c3aed, #a78bfa);
+            color: white;
+            align-self: flex-end;
+        }
+        .ai-message {
+            background-color: #e5e7eb;
+            color: #1f2937;
+            align-self: flex-start;
+        }
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+        }
+        .typing-dot {
+            width: 10px;
+            height: 10px;
+            background-color: #6b7280;
+            border-radius: 50%;
+            margin: 0 5px;
+            animation: typing 1.2s infinite;
+        }
+        .typing-dot:nth-child(2) { animation-delay: 0.3s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.6s; }
+        @keyframes typing {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+        .fade-in {
+            animation: fadeIn 0.8s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div id="background-image"></div>
+    <div id="root"></div>
+    <div class="fixed bottom-4 right-4 text-white text-sm" id="datetime"></div>
+
+    <script type="text/babel">
+        function AiPage() {
+            console.log("Composant AiPage chargé");
+            const [user, setUser] = React.useState(null);
+            const [aiInput, setAiInput] = React.useState('');
+            const [aiMessages, setAiMessages] = React.useState([]);
+            const [aiError, setAiError] = React.useState('');
+            const [aiLoading, setAiLoading] = React.useState(false);
+            const [timeSpent, setTimeSpent] = React.useState(0);
+            const [isOnline, setIsOnline] = React.useState(navigator.onLine);
+
+            React.useEffect(() => {
+                const updateDateTime = () => {
+                    const now = new Date();
+                    const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                    const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Africa/Lagos' };
+                    const date = now.toLocaleDateString('fr-FR', optionsDate);
+                    const time = now.toLocaleTimeString('fr-FR', optionsTime);
+                    document.getElementById('datetime').textContent = `${time} WAT, ${date}`;
+                };
+                updateDateTime();
+                const dateTimeTimer = setInterval(updateDateTime, 1000);
+
+                const userData = localStorage.getItem('connectadmin');
+                if (userData) {
+                    try {
+                        const parsedData = JSON.parse(userData);
+                        if (parsedData.name && parsedData.role) setUser(parsedData);
+                    } catch (e) {}
+                }
+
+                const startTime = Date.now();
+                const timer = setInterval(() => {
+                    const seconds = Math.floor((Date.now() - startTime) / 1000);
+                    setTimeSpent(seconds);
+                }, 1000);
+
+                const handleOnline = () => setIsOnline(true);
+                const handleOffline = () => setIsOnline(false);
+                window.addEventListener('online', handleOnline);
+                window.addEventListener('offline', handleOffline);
+
+                return () => {
+                    clearInterval(timer);
+                    clearInterval(dateTimeTimer);
+                    window.removeEventListener('online', handleOnline);
+                    window.removeEventListener('offline', handleOffline);
+                };
+            }, []);
+
+            const formatTime = (seconds) => {
+                const hrs = Math.floor(seconds / 3600);
+                const mins = Math.floor((seconds % 3600) / 60);
+                const secs = seconds % 60;
+                return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            };
+
+            const handleLogout = async () => {
+                try {
+                    await fetch('/api/logout', { method: 'POST' });
+                    localStorage.removeItem('connectadmin');
+                    window.location.href = 'choix.html';
+                } catch (err) {
+                    console.error('Erreur lors de la déconnexion:', err);
+                }
+            };
+
+            const handleAiSubmit = async (e) => {
+                e.preventDefault();
+                if (!aiInput.trim()) {
+                    setAiError('Veuillez entrer une question.');
+                    return;
+                }
+                if (!isOnline) {
+                    setAiError('L\'IA ne peut pas répondre car vous n\'êtes pas connecté à Internet.');
+                    return;
+                }
+                const newMessage = { id: Date.now(), content: aiInput, type: 'user', timestamp: new Date().toISOString() };
+                setAiMessages([...aiMessages, newMessage]);
+                setAiInput('');
+                setAiLoading(true);
+                setAiError('');
+                try {
+                    const response = await fetch('/api/ai', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ prompt: aiInput })
+                    });
+                    if (!response.ok) throw new Error('Erreur API');
+                    const data = await response.json();
+                    const aiMessage = { id: Date.now() + 1, content: data.response, type: 'ai', timestamp: new Date().toISOString() };
+                    setAiMessages(prev => [...prev, aiMessage]);
+                    const newDoc = {
+                        id: Date.now(),
+                        title: 'Réponse IA',
+                        category: 'Notes Internes',
+                        fileName: `reponse_ia_${Date.now()}.txt`,
+                        uploadedBy: user ? user.name : 'Admin',
+                        uploadDate: new Date().toISOString().slice(0, 16).replace('T', ' ')
+                    };
+                    console.log('Document simulé ajouté:', newDoc);
+                } catch (error) {
+                    setAiError('Erreur: ' + error.message);
+                } finally {
+                    setAiLoading(false);
+                }
+            };
+
+            const handleAiSuggestion = (suggestion) => {
+                setAiInput(suggestion);
+            };
+
+            const clearConversation = () => {
+                if (window.confirm('Voulez-vous effacer la conversation ?')) {
+                    setAiMessages([]);
+                    setAiError('');
+                }
+            };
+
+            return (
+                <div className="flex flex-col min-h-screen">
+                    <header className="bg-blue-800 text-white p-5 flex justify-between items-center">
+                        <h1 className="text-2xl font-bold flex items-center">
+                            <span role="img" aria-label="robot">🤖</span> Assistant IA
+                        </h1>
+                        <div className="flex items-center space-x-6">
+                            <span className="text-sm font-medium">Temps passé : {formatTime(timeSpent)}</span>
+                            <span className={`px-3 py-1 rounded-lg text-sm font-medium ${isOnline ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'}`}>
+                                {isOnline ? 'En ligne' : 'Hors ligne'}
+                            </span>
+                            <span className="text-sm font-medium">{user ? `Bienvenue, ${user.name}` : 'Admin'}</span>
+                            <button
+                                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none"
+                                onClick={() => window.location.href = 'dashboard.html'}
+                            >
+                                Retour au Tableau de Bord
+                            </button>
+                            <button
+                                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 focus:outline-none"
+                                onClick={handleLogout}
+                            >
+                                Déconnexion 🚪
+                            </button>
+                        </div>
+                    </header>
+                    <main className="flex-1 p-6">
+                        <div className="card bg-white p-6 rounded-lg shadow-md max-w-3xl mx-auto">
+                            <div className="bg-gray-50 p-6 rounded-lg h-[calc(70vh-12rem)] overflow-y-auto mb-6 flex flex-col">
+                                {aiMessages.length > 0 ? (
+                                    aiMessages.map((msg) => (
+                                        <div
+                                            key={msg.id}
+                                            className={`message-bubble fade-in ${msg.type === 'user' ? 'user-message' : 'ai-message'}`}
+                                        >
+                                            <div className="text-gray-800">{msg.content}</div>
+                                            <div className="text-xs text-gray-500 mt-2">
+                                                {new Date(msg.timestamp).toLocaleString('fr-FR')}
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="text-center text-gray-500 mt-4">
+                                        Commencez une conversation avec l'IA !
+                                    </div>
+                                )}
+                                {aiLoading && (
+                                    <div className="typing-indicator fade-in">
+                                        <div className="typing-dot"></div>
+                                        <div className="typing-dot"></div>
+                                        <div className="typing-dot"></div>
+                                    </div>
+                                )}
+                            </div>
+                            {aiError && <p className="error-message mb-4 text-red-600">{aiError}</p>}
+                            <div className="flex flex-wrap gap-3 mb-6">
+                                {['Comment gérer les utilisateurs ?', 'Quels outils pour visualiser les données ?', 'Conseils pour exporter des documents'].map((suggestion) => (
+                                    <button
+                                        key={suggestion}
+                                        className="bg-gray-200 text-gray-800 px-4 py-2 rounded-full hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                        onClick={() => handleAiSuggestion(suggestion)}
+                                    >
+                                        {suggestion}
+                                    </button>
+                                ))}
+                            </div>
+                            <form onSubmit={handleAiSubmit} className="space-y-4">
+                                <textarea
+                                    placeholder="Posez une question..."
+                                    className="border p-4 rounded-lg w-full h-28 bg-gray-50 text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    value={aiInput}
+                                    onChange={(e) => setAiInput(e.target.value)}
+                                    aria-label="Question pour l'assistant IA"
+                                ></textarea>
+                                <div className="flex space-x-3">
+                                    <button
+                                        type="submit"
+                                        className="bg-blue-500 text-white py-2 px-6 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                        disabled={aiLoading}
+                                    >
+                                        {aiLoading ? 'Chargement... ⏳' : 'Envoyer'}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="bg-red-500 text-white py-2 px-6 rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
+                                        onClick={clearConversation}
+                                    >
+                                        Effacer
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </main>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<AiPage />, document.getElementById('root'));
+    </script>
+</body>
+</html>

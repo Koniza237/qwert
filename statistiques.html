@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Statistiques administratives professionnelles pour Fareno University">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="shortcut icon" href="FARENOUNIVERSITY.jpg" type="image/x-icon">
+    <title>Statistiques - Fareno University</title>
+    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.24.7/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f9fafb;
+            margin: 0;
+            transition: background-color 0.3s ease;
+        }
+
+        .dark body {
+            background-color: #0f172a;
+        }
+
+        #background-image {
+            background: linear-gradient(135deg, #1e40af, #7c3aed);
+            background-size: 200% 200%;
+            animation: gradientShift 15s ease-in-out infinite;
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            opacity: 0.6;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        #root {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            background-color: rgba(255, 255, 255, 0.97);
+            transition: background-color 0.3s ease;
+        }
+
+        .dark #root {
+            background-color: rgba(17, 24, 39, 0.97);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .scale-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .scale-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .button-click {
+            animation: clickEffect 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes clickEffect {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.96); }
+            100% { transform: scale(1); }
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .dark .card {
+            background: #1e293b;
+            border-color: rgba(255, 255, 255, 0.1);
+            color: #f9fafb;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        header {
+            background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 1rem 2rem;
+        }
+
+        .profile-photo {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            object-fit: cover;
+            cursor: pointer;
+            border: 3px solid #ffffff;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .profile-photo:hover {
+            transform: scale(1.1);
+            border-color: #dbeafe;
+        }
+
+        .photo-placeholder {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            font-size: 1.25rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: 3px solid #ffffff;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .photo-placeholder:hover {
+            transform: scale(1.1);
+            border-color: #dbeafe;
+        }
+
+        .gradient-button {
+            background: linear-gradient(45deg, #3b82f6, #7c3aed);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .gradient-button:hover {
+            background: linear-gradient(45deg, #2563eb, #6d28d9);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .gradient-button:focus {
+            outline: none;
+        }
+
+        .gradient-button:active {
+            transform: translateY(0);
+        }
+
+        .secondary-button {
+            background: #f3f4f6;
+            color: #1f2937;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .dark .secondary-button {
+            background: #374151;
+            color: #f9fafb;
+        }
+
+        .secondary-button:hover {
+            background: #e5e7eb;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark .secondary-button:hover {
+            background: #4b5563;
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeOut 1s ease-in-out forwards;
+            animation-delay: 0.5s;
+        }
+
+        .dark .loading-overlay {
+            background: rgba(17, 24, 39, 0.95);
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; display: none; }
+        }
+
+        .spinner {
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-left: 5px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .chart-container {
+            position: relative;
+            margin: auto;
+            width: 100%;
+            max-width: 400px;
+            height: 300px;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: background-color 0.3s ease;
+        }
+
+        .dark .table-container {
+            background: #374151;
+        }
+
+        .table-container table {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+        }
+
+        .table-container th,
+        .table-container td {
+            padding: 1.25rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .dark .table-container th,
+        .dark .table-container td {
+            border-bottom: 1px solid #4b5563;
+        }
+
+        .table-container th {
+            background: linear-gradient(45deg, #10b981, #34d399);
+            color: white;
+            font-weight: 600;
+        }
+
+        .heatmap-container {
+            overflow-x: auto;
+        }
+
+        .heatmap-table th,
+        .heatmap-table td {
+            padding: 0.5rem;
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .heatmap-low {
+            background-color: #e0f7fa;
+        }
+
+        .heatmap-medium {
+            background-color: #81d4fa;
+        }
+
+        .heatmap-high {
+            background-color: #0288d1;
+        }
+
+        .heatmap-legend {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .heatmap-legend div {
+            width: 20px;
+            height: 20px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .dark .summary-card {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            color: #f9fafb;
+        }
+
+        @media (min-width: 640px) {
+            .chart-container {
+                max-width: 340px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .chart-container {
+                max-width: 380px;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <div id="background-image"></div>
+    <div id="loadingOverlay" class="loading-overlay">
+        <div className="spinner"></div>
+    </div>
+    <div id="root" className="w-full flex-1"></div>
+    <div className="absolute top-4 left-4 text-white text-2xl animate-pulse" aria-hidden="true">📊</div>
+    <div className="fixed bottom-4 right-4 bg-gray-900 text-white text-xs rounded-lg px-3 py-1.5 shadow-lg dark:bg-gray-800">
+        <span id="datetime" aria-live="polite"></span>
+    </div>
+
+    <script type="text/babel">
+        function StatisticsDashboard() {
+            const [user, setUser] = React.useState(null);
+            const [profilePhoto, setProfilePhoto] = React.useState(null);
+            const [students, setStudents] = React.useState([]);
+            const [teachers, setTeachers] = React.useState([]);
+            const [admins, setAdmins] = React.useState([]);
+            const [groups, setGroups] = React.useState([]);
+            const [documents, setDocuments] = React.useState([]);
+            const [constraints, setConstraints] = React.useState([]);
+            const [attendance, setAttendance] = React.useState([]);
+            const [timeSpent, setTimeSpent] = React.useState(0);
+            const [isOnline, setIsOnline] = React.useState(navigator.onLine);
+            const [theme, setTheme] = React.useState('light');
+            const [fontSize, setFontSize] = React.useState('medium');
+            const [layoutDensity, setLayoutDensity] = React.useState('normal');
+            const [isLoading, setIsLoading] = React.useState(true);
+            const [statsFilter, setStatsFilter] = React.useState({ group: 'all', teacher: 'all', period: 'month' });
+
+            // Chart references
+            const chartRefs = {
+                usersByType: React.useRef(null),
+                teachersStatus: React.useRef(null),
+                documentsByCategory: React.useRef(null),
+                constraintsByDay: React.useRef(null),
+                documentsOverTime: React.useRef(null),
+                onlineUsersGauge: React.useRef(null),
+                docTrendChart: React.useRef(null),
+                attendanceByGroup: React.useRef(null)
+            };
+
+            React.useEffect(() => {
+                // Load user data
+                const userData = localStorage.getItem('connectadmin');
+                if (userData) {
+                    try {
+                        const parsedData = JSON.parse(userData);
+                        if (parsedData.name && parsedData.role) setUser(parsedData);
+                    } catch (e) {
+                        console.error('Erreur lors du parsing de connectadmin:', e);
+                    }
+                }
+
+                // Load profile photo
+                const savedPhoto = localStorage.getItem('adminProfilePhoto');
+                if (savedPhoto) {
+                    try {
+                        setProfilePhoto(savedPhoto);
+                    } catch (e) {
+                        console.error('Erreur lors du parsing de adminProfilePhoto:', e);
+                    }
+                }
+
+                // Load theme
+                const savedTheme = localStorage.getItem('theme') || 'light';
+                setTheme(savedTheme);
+                document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+
+                // Load font size
+                const savedFontSize = localStorage.getItem('fontSize') || 'medium';
+                setFontSize(savedFontSize);
+                document.documentElement.style.fontSize = savedFontSize === 'small' ? '14px' : savedFontSize === 'large' ? '18px' : '16px';
+
+                // Load layout density
+                const savedLayoutDensity = localStorage.getItem('layoutDensity') || 'normal';
+                setLayoutDensity(savedLayoutDensity);
+
+                // Set up time tracking
+                const startTime = Date.now();
+                const timer = setInterval(() => {
+                    setTimeSpent(Math.floor((Date.now() - startTime) / 1000));
+                }, 1000);
+
+                // Update date and time display
+                const updateDateTime = () => {
+                    const now = new Date();
+                    const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                    const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Africa/Lagos' };
+                    const date = now.toLocaleDateString('fr-FR', optionsDate);
+                    const time = now.toLocaleTimeString('fr-FR', optionsTime);
+                    document.getElementById('datetime').textContent = `${time} WAT, ${date}`;
+                };
+                updateDateTime();
+                const dateTimeTimer = setInterval(updateDateTime, 1000);
+
+                // Fetch data
+                fetchData();
+
+                // Handle online/offline status
+                const handleOnline = () => setIsOnline(true);
+                const handleOffline = () => setIsOnline(false);
+                window.addEventListener('online', handleOnline);
+                window.addEventListener('offline', handleOffline);
+
+                return () => {
+                    clearInterval(timer);
+                    clearInterval(dateTimeTimer);
+                    window.removeEventListener('online', handleOnline);
+                    window.removeEventListener('offline', handleOffline);
+                    // Destroy charts on unmount
+                    Object.values(chartRefs).forEach(ref => {
+                        if (ref.current && ref.current.chart) {
+                            ref.current.chart.destroy();
+                        }
+                    });
+                };
+            }, []);
+
+            const fetchData = async () => {
+                setIsLoading(true);
+                try {
+                    const [teachersData, studentsData, adminsData, groupsData, documentsData, constraintsData, attendanceData] = await Promise.all([
+                        fetch('/api/users/teachers').then(res => res.ok ? res.json() : []),
+                        fetch('/api/users/students').then(res => res.ok ? res.json() : []),
+                        fetch('/api/users/admins').then(res => res.ok ? res.json() : []),
+                        fetch('/api/resources/groups').then(res => res.ok ? res.json() : []),
+                        fetch('/api/documents').then(res => res.ok ? res.json() : []),
+                        fetch('/api/constraints').then(res => res.ok ? res.json() : []),
+                        fetch('/api/attendance').then(res => res.ok ? res.json() : [])
+                    ]);
+                    setTeachers(teachersData);
+                    setStudents(studentsData);
+                    setAdmins(adminsData);
+                    setGroups(groupsData);
+                    setDocuments(documentsData);
+                    setConstraints(constraintsData);
+                    setAttendance(attendanceData);
+                } catch (err) {
+                    console.error('Erreur lors du chargement des données:', err);
+                    alert('Erreur lors du chargement des données : ' + err.message);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+
+            const formatTime = (seconds) => {
+                const hrs = Math.floor(seconds / 3600);
+                const mins = Math.floor((seconds % 3600) / 60);
+                const secs = Math.floor(seconds % 60);
+                return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            };
+
+            const handlePhotoUpload = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                if (!file.type.startsWith('image/')) {
+                    alert('Veuillez sélectionner une image valide.');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const imageData = reader.result;
+                    setProfilePhoto(imageData);
+                    localStorage.setItem('adminProfilePhoto', imageData);
+                };
+                reader.onerror = () => {
+                    alert('Erreur lors du chargement de l\'image.');
+                };
+                reader.readAsDataURL(file);
+            };
+
+            const handleClick = (e) => {
+                e.target.classList.add('button-click');
+                setTimeout(() => e.target.classList.remove('button-click'), 300);
+            };
+
+            const toggleTheme = () => {
+                const newTheme = theme === 'light' ? 'dark' : 'light';
+                setTheme(newTheme);
+                localStorage.setItem('theme', newTheme);
+                document.documentElement.classList.toggle('dark', newTheme === 'dark');
+            };
+
+            const exportStatsCSV = () => {
+                const statsData = [
+                    ['Statistique', 'Valeur'],
+                    ['Total Étudiants', students.length],
+                    ['Total Enseignants', teachers.length],
+                    ['Total Admins', admins.length],
+                    ['Total Groupes', groups.length],
+                    ['Total Documents', documents.length],
+                    ['Total Contraintes', constraints.length]
+                ];
+                const csvContent = statsData.map(row => row.join(',')).join('\n');
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                saveAs(blob, 'statistics_export.csv');
+            };
+
+            const generateHeatmapData = () => {
+                const days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi'];
+                const slots = ['08:00-10:00', '10:00-12:00', '13:00-15:00', '15:00-17:00'];
+                const heatmap = days.map(() => slots.map(() => 0));
+
+                documents.forEach(doc => {
+                    const date = new Date(doc.uploadDate);
+                    const dayIndex = date.getDay() - 1;
+                    if (dayIndex >= 0 && dayIndex < 5) {
+                        const hour = date.getHours();
+                        let slotIndex = Math.floor((hour - 8) / 2);
+                        if (slotIndex >= 0 && slotIndex < 4) {
+                            heatmap[dayIndex][slotIndex]++;
+                        }
+                    }
+                });
+
+                return { days, slots, heatmap };
+            };
+
+            // Prepare data for charts
+            React.useEffect(() => {
+                if (isLoading) return;
+
+                const isDarkMode = theme === 'dark';
+                const chartColors = {
+                    blue: isDarkMode ? '#60a5fa' : '#1e40af',
+                    green: isDarkMode ? '#4ade80' : '#15803d',
+                    purple: isDarkMode ? '#c084fc' : '#6b21a8',
+                    orange: isDarkMode ? '#fb923c' : '#ea580c',
+                    teal: isDarkMode ? '#2dd4bf' : '#0d9488',
+                    gray: isDarkMode ? '#6b7280' : '#d1d5db'
+                };
+
+                const tooltipStyle = {
+                    backgroundColor: isDarkMode ? '#1e293b' : '#ffffff',
+                    borderColor: isDarkMode ? '#4b5563' : '#e5e7eb',
+                    borderWidth: 1,
+                    titleColor: isDarkMode ? '#f9fafb' : '#1f2937',
+                    bodyColor: isDarkMode ? '#f9fafb' : '#1f2937',
+                    padding: 12,
+                    cornerRadius: 8
+                };
+
+                // Chart 1: Users by Type (Pie)
+                if (chartRefs.usersByType.current) {
+                    if (chartRefs.usersByType.current.chart) chartRefs.usersByType.current.chart.destroy();
+                    chartRefs.usersByType.current.chart = new Chart(chartRefs.usersByType.current, {
+                        type: 'pie',
+                        data: {
+                            labels: ['Étudiants', 'Enseignants', 'Admins'],
+                            datasets: [{
+                                data: [students.length, teachers.length, admins.length],
+                                backgroundColor: [chartColors.blue, chartColors.green, chartColors.purple],
+                                borderColor: isDarkMode ? '#0f172a' : '#ffffff',
+                                borderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: { color: isDarkMode ? '#f9fafb' : '#1f2937', font: { size: 13, weight: 500 } }
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Répartition des Utilisateurs',
+                                    color: isDarkMode ? '#f9fafb' : '#1f2937',
+                                    font: { size: 18, weight: 600 },
+                                    padding: { bottom: 12 }
+                                },
+                                tooltip: tooltipStyle
+                            },
+                            animation: { duration: 1200, easing: 'easeOutQuart' }
+                        }
+                    });
+                }
+
+                // Chart 2: Teachers Status (Doughnut)
+                const activeTeachers = teachers.filter(t => t.isActive !== false).length;
+                const inactiveTeachers = teachers.length - activeTeachers;
+                if (chartRefs.teachersStatus.current) {
+                    if (chartRefs.teachersStatus.current.chart) chartRefs.teachersStatus.current.chart.destroy();
+                    chartRefs.teachersStatus.current.chart = new Chart(chartRefs.teachersStatus.current, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Actifs', 'Inactifs'],
+                            datasets: [{
+                                data: [activeTeachers, inactiveTeachers],
+                                backgroundColor: [chartColors.green, chartColors.gray],
+                                borderColor: isDarkMode ? '#0f172a' : '#ffffff',
+                                borderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: { color: isDarkMode ? '#f9fafb' : '#1f2937', font: { size: 13, weight: 500 } }
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Statut des Enseignants',
+                                    color: isDarkMode ? '#f9fafb' : '#1f2937',
+                                    font: { size: 18, weight: 600 },
+                                    padding: { bottom: 12 }
+                                },
+                                tooltip: tooltipStyle
+                            },
+                            animation: { duration: 1200, easing: 'easeOutQuart' }
+                        }
+                    });
+                }
+
+                // Chart 3: Documents by Category (Bar)
+                const categories = ['Règlements', 'Plannings', 'Notes Internes', 'Autres'];
+                const docCounts = categories.map(cat => documents.filter(doc => doc.category === cat).length);
+                if (chartRefs.documentsByCategory.current) {
+                    if (chartRefs.documentsByCategory.current.chart) chartRefs.documentsByCategory.current.chart.destroy();
+                    chartRefs.documentsByCategory.current.chart = new Chart(chartRefs.documentsByCategory.current, {
+                        type: 'bar',
+                        data: {
+                            labels: categories,
+                            datasets: [{
+                                label: 'Documents',
+                                data: docCounts,
+                                backgroundColor: chartColors.purple,
+                                borderColor: isDarkMode ? '#0f172a' : '#ffffff',
+                                borderWidth: 1,
+                                borderRadius: 8,
+                                borderSkipped: false
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { display: false },
+                                title: {
+                                    display: true,
+                                    text: 'Documents par Catégorie',
+                                    color: isDarkMode ? '#f9fafb' : '#1f2937',
+                                    font: { size: 18, weight: 600 },
+                                    padding: { bottom: 12 }
+                                },
+                                tooltip: tooltipStyle
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: { color: isDarkMode ? '#f9fafb' : '#1f2937', font: { size: 12 } },
+                                    grid: { color: isDarkMode ? '#374151' : '#e5e7eb' }
+                                },
+                                x: {
+                                    ticks: { color: isDarkMode ? '#f9fafb' : '#1f2937', font: { size: 12 } },
+                                    grid: { display: false }
+                                }
+                            },
+                            animation: { duration: 1200, easing: 'easeOutQuart' }
+                        }
+                    });
+                }
+
+                // Chart 4: Constraints by Day (Bar)
+                const days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+                const constraintCounts = days.map(day => constraints.filter(c => c.day === day).length);
+                if (chartRefs.constraintsByDay.current) {
+                    if (chartRefs.constraintsByDay.current.chart) chartRefs.constraintsByDay.current.chart.destroy();
+                    chartRefs.constraintsByDay.current.chart = new Chart(chartRefs.constraintsByDay.current, {
+                        type: 'bar',
+                        data: {
+                            labels: days,
+                            datasets: [{
+                                label: 'Contraintes',
+                                data: constraintCounts,
+                                backgroundColor: chartColors.orange,
+                                borderColor: isDarkMode ? '#0f172a' : '#ffffff',
+                                borderWidth: 1,
+                                borderRadius: 8,
+                                borderSkipped: false
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { display: false },
+                                title: {
+                                    display: true,
+                                    text: 'Contraintes par Jour',
+                                    color: isDarkMode ? '#f9fafb' : '#1f2937',
+                                    font: { size: 18, weight: 600 },
+                                    padding: { bottom: 12 }
+                                },
+                                tooltip: tooltipStyle
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: { color: isDarkMode ? '#f9fafb' : '#1f2937', font: { size: 12 } },
+                                    grid: { color: isDarkMode ? '#374151' : '#e5e7eb' }
+                                },
+                                x: {
+                                    ticks: { color: isDarkMode ? '#f9fafb' : '#1f2937', font: { size: 12 } },
+                                    grid: { display: false }
+                                }
+                            },
+                            animation: { duration: 1200, easing: 'easeOutQuart' }
+                        }
+                    });
+                }
+
+                // Chart 5: Documents Over Time (Line)
+                const now = new Date();
+                const weeks = Array.from({ length: 4 }, (_, i) => {
+                    const weekStart = new Date(now.getTime() - (i + 1) * 7 * 24 * 60 * 60 * 1000);
+                    return `Semaine ${4 - i}`;
+                }).reverse();
+                const docCountsOverTime = weeks.map((_, i) => {
+                    const weekStart = new Date(now.getTime() - (4 - i) * 7 * 24 * 60 * 60 * 1000);
+                    const weekEnd = new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000);
+                    return documents.filter(doc => {
+                        const uploadDate = new Date(doc.uploadDate);
+                        return uploadDate >= weekStart && uploadDate < weekEnd;
+                    }).length;
+                });
+                if (chartRefs.documentsOverTime.current) {
+                    if (chartRefs.documentsOverTime.current.chart) chartRefs.documentsOverTime.current.chart.destroy();
+                    chartRefs.documentsOverTime.current.chart = new Chart(chartRefs.documentsOverTime.current, {
+                        type: 'line',
+                        data: {
+                            labels: weeks,
+                            datasets: [{
+                                label: 'Documents',
+                                data: docCountsOverTime,
+                                borderColor: chartColors.teal,
+                                backgroundColor: isDarkMode ? 'rgba(45, 212, 191, 0.2)' : 'rgba(13, 148, 136, 0.2)',
+                                fill: true,
+                                tension: 0.4,
+                                pointBackgroundColor: chartColors.teal,
+                                pointBorderColor: isDarkMode ? '#0f172a' : '#ffffff',
+                                pointBorderWidth: 2,
+                                pointRadius: 5
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { display: false },
+                                title: {
+                                    display: true,
+                                    text: 'Tendances des Documents (4 Semaines)',
+                                    color: isDarkMode ? '#f9fafb' : '#1f2937',
+                                    font: { size: 18, weight: 600 },
+                                    padding: { bottom: 12 }
+                                },
+                                tooltip: tooltipStyle
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: { color: isDarkMode ? '#f9fafb' : '#1f2937', font: { size: 12 } },
+                                    grid: { color: isDarkMode ? '#374151' : '#e5e7eb' }
+                                },
+                                x: {
+                                    ticks: { color: isDarkMode ? '#f9fafb' : '#1f2937', font: { size: 12 } },
+                                    grid: { display: false }
+                                }
+                            },
+                            animation: { duration: 1200, easing: 'easeOutQuart' }
+                        }
+                    });
+                }
+
+                // Chart 6: Online Users Gauge (Doughnut)
+                const onlinePercent = (students.length + teachers.length + admins.length > 0 ? (Math.random() * 20 + 30) : 0).toFixed(1);
+                if (chartRefs.onlineUsersGauge.current) {
+                    if (chartRefs.onlineUsersGauge.current.chart) chartRefs.onlineUsersGauge.current.chart.destroy();
+                    chartRefs.onlineUsersGauge.current.chart = new Chart(chartRefs.onlineUsersGauge.current, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['En Ligne', 'Hors Ligne'],
+                            datasets: [{
+                                data: [onlinePercent, 100 - onlinePercent],
+                                backgroundColor: [chartColors.blue, isDarkMode ? '#374151' : '#e5e7eb'],
+                                borderColor: isDarkMode ? '#0f172a' : '#ffffff',
+                                borderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: { color: isDarkMode ? '#f9fafb' : '#1f2937', font: { size: 13, weight: 500 } }
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Activité des Utilisateurs En Ligne',
+                                    color: isDarkMode ? '#f9fafb' : '#1f2937',
+                                    font: { size: 18, weight: 600 },
+                                    padding: { bottom: 12 }
+                                },
+                                tooltip: tooltipStyle
+                            },
+                            circumference: 180,
+                            rotation: 270,
+                            animation: { duration: 1200, easing: 'easeOutQuart' }
+                        }
+                    });
+                }
+
+                // Chart 7: Document Trends (Line)
+                if (chartRefs.docTrendChart.current) {
+                    if (chartRefs.docTrendChart.current.chart) chartRefs.docTrendChart.current.chart.destroy();
+                    const months = Array.from({ length: 6 }, (_, i) => {
+                        const date = new Date();
+                        date.setMonth(date.getMonth() - i);
+                        return date.toLocaleString('fr-FR', { month: 'short', year: 'numeric' });
+                    }).reverse();
+
+                    const docCounts = months.map(month => {
+                        return documents.filter(doc => {
+                            const docDate = new Date(doc.uploadDate);
+                            return docDate.toLocaleString('fr-FR', { month: 'short', year: 'numeric' }) === month;
+                        }).length;
+                    });
+
+                    chartRefs.docTrendChart.current.chart = new Chart(chartRefs.docTrendChart.current, {
+                        type: 'line',
+                        data: {
+                            labels: months,
+                            datasets: [{
+                                label: 'Documents uploadés',
+                                data: docCounts,
+                                borderColor: chartColors.purple,
+                                backgroundColor: isDarkMode ? 'rgba(192, 132, 252, 0.2)' : 'rgba(107, 33, 168, 0.2)',
+                                fill: true,
+                                tension: 0.4,
+                                pointBackgroundColor: chartColors.purple,
+                                pointBorderColor: isDarkMode ? '#0f172a' : '#ffffff',
+                                pointBorderWidth: 2,
+                                pointRadius: 5
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { display: false },
+                                title: {
+                                    display: true,
+                                    text: 'Tendances des Documents (6 Mois)',
+                                    color: isDarkMode ? '#f9fafb' : '#1f2937',
+                                    font: { size: 18, weight: 600 },
+                                    padding: { bottom: 12 }
+                                },
+                                tooltip: tooltipStyle
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: { color: isDarkMode ? '#f9fafb' : '#1f2937', font: { size: 12 } },
+                                    grid: { color: isDarkMode ? '#374151' : '#e5e7eb' }
+                                },
+                                x: {
+                                    ticks: { color: isDarkMode ? '#f9fafb' : '#1f2937', font: { size: 12 } },
+                                    grid: { display: false }
+                                }
+                            },
+                            animation: { duration: 1200, easing: 'easeOutQuart' }
+                        }
+                    });
+                }
+
+                // Chart 8: Attendance by Group (Bar)
+                if (chartRefs.attendanceByGroup.current) {
+                    if (chartRefs.attendanceByGroup.current.chart) chartRefs.attendanceByGroup.current.chart.destroy();
+                    const groupNames = groups.map(g => g.name);
+                    const attendanceRates = groups.map(group => {
+                        const groupAttendance = attendance.filter(a => a.groupId === group.id);
+                        const totalSessions = groupAttendance.length;
+                        const presentSessions = groupAttendance.filter(a => a.present).length;
+                        return totalSessions > 0 ? (presentSessions / totalSessions * 100).toFixed(1) : 0;
+                    });
+
+                    chartRefs.attendanceByGroup.current.chart = new Chart(chartRefs.attendanceByGroup.current, {
+                        type: 'bar',
+                        data: {
+                            labels: groupNames,
+                            datasets: [{
+                                label: 'Taux de Présence (%)',
+                                data: attendanceRates,
+                                backgroundColor: chartColors.green,
+                                borderColor: isDarkMode ? '#0f172a' : '#ffffff',
+                                borderWidth: 1,
+                                borderRadius: 8,
+                                borderSkipped: false
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { display: false },
+                                title: {
+                                    display: true,
+                                    text: 'Taux de Présence par Groupe',
+                                    color: isDarkMode ? '#f9fafb' : '#1f2937',
+                                    font: { size: 18, weight: 600 },
+                                    padding: { bottom: 12 }
+                                },
+                                tooltip: tooltipStyle
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100,
+                                    ticks: {
+                                        color: isDarkMode ? '#f9fafb' : '#1f2937',
+                                        font: { size: 12 },
+                                        callback: value => `${value}%`
+                                    },
+                                    grid: { color: isDarkMode ? '#374151' : '#e5e7eb' }
+                                },
+                                x: {
+                                    ticks: { color: isDarkMode ? '#f9fafb' : '#1f2937', font: { size: 12 } },
+                                    grid: { display: false }
+                                }
+                            },
+                            animation: { duration: 1200, easing: 'easeOutQuart' }
+                        }
+                    });
+                }
+            }, [isLoading, students, teachers, admins, documents, constraints, groups, attendance, theme]);
+
+            return (
+                <div className="flex flex-col min-h-screen w-full">
+                    <header className="bg-blue-900 text-white p-4 flex justify-between items-center">
+                        <div className="flex items-center space-x-3">
+                            <img src="FARENOUNIVERSITY.jpg" alt="Fareno University Logo" className="h-10 w-10 rounded-full" />
+                            <h1 className="text-2xl font-bold tracking-tight">Statistiques Administratives</h1>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                            <div className="flex items-center space-x-3">
+                                <span className="text-sm font-medium text-gray-100">{user ? `Bienvenue, ${user.name}` : 'Administrateur'}</span>
+                                <label htmlFor="photoUpload" className="cursor-pointer">
+                                    {profilePhoto ? (
+                                        <img
+                                            src={profilePhoto}
+                                            alt="Photo de profil"
+                                            className="profile-photo"
+                                        />
+                                    ) : (
+                                        <div className="photo-placeholder">👤</div>
+                                    )}
+                                </label>
+                                <input
+                                    id="photoUpload"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handlePhotoUpload}
+                                    className="hidden"
+                                    aria-label="Changer la photo de profil"
+                                />
+                            </div>
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${isOnline ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                {isOnline ? 'En ligne' : 'Hors ligne'}
+                            </span>
+                            <div className="text-xs font-medium text-gray-100">Temps passé : {formatTime(timeSpent)}</div>
+                            <button
+                                className="secondary-button scale-hover"
+                                onClick={toggleTheme}
+                                onMouseDown={handleClick}
+                                aria-label={theme === 'light' ? 'Passer au mode sombre' : 'Passer au mode clair'}
+                            >
+                                {theme === 'light' ? '🌙 Mode Sombre' : '☀️ Mode Clair'}
+                            </button>
+                        </div>
+                    </header>
+                    <main className="flex-1 p-6 w-full" role="main">
+                        <div className={`p-6 max-w-7xl mx-auto ${layoutDensity === 'compact' ? 'space-y-4' : 'space-y-6'}`}>
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">Aperçu des Statistiques</h2>
+                                <div className="flex space-x-4">
+                                    <button
+                                        className="gradient-button scale-hover"
+                                        onClick={() => window.location.href = 'dashboard.html'}
+                                        onMouseDown={handleClick}
+                                        aria-label="Retour au tableau de bord"
+                                    >
+                                        Retour au Dashboard
+                                    </button>
+                                    <button
+                                        className="secondary-button scale-hover"
+                                        onClick={fetchData}
+                                        onMouseDown={handleClick}
+                                        aria-label="Rafraîchir les données"
+                                    >
+                                        Rafraîchir
+                                    </button>
+                                    <button
+                                        className="gradient-button scale-hover"
+                                        onClick={exportStatsCSV}
+                                        onMouseDown={handleClick}
+                                        aria-label="Exporter en CSV"
+                                    >
+                                        Exporter CSV
+                                    </button>
+                                </div>
+                            </div>
+                            {isLoading ? (
+                                <div className="flex justify-center items-center h-64">
+                                    <div className="spinner"></div>
+                                </div>
+                            ) : (
+                                <>
+                                    {/* Summary Cards */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                                        <div className="summary-card fade-in scale-hover">
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Total Étudiants</p>
+                                                <p className="text-2xl font-bold text-gray-900 dark:text-white">{students.length}</p>
+                                            </div>
+                                            <span className="text-3xl">👨‍🎓</span>
+                                        </div>
+                                        <div className="summary-card fade-in scale-hover">
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Total Enseignants</p>
+                                                <p className="text-2xl font-bold text-gray-900 dark:text-white">{teachers.length}</p>
+                                            </div>
+                                            <span className="text-3xl">👩‍🏫</span>
+                                        </div>
+                                        <div className="summary-card fade-in scale-hover">
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Total Admins</p>
+                                                <p className="text-2xl font-bold text-gray-900 dark:text-white">{admins.length}</p>
+                                            </div>
+                                            <span className="text-3xl">👤</span>
+                                        </div>
+                                        <div className="summary-card fade-in scale-hover">
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Total Documents</p>
+                                                <p className="text-2xl font-bold text-gray-900 dark:text-white">{documents.length}</p>
+                                            </div>
+                                            <span className="text-3xl">📄</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Filters */}
+                                    <div className="flex justify-between items-center mb-6">
+                                        <div className="flex gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Groupe</label>
+                                                <select
+                                                    className="border p-2 rounded bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100"
+                                                    value={statsFilter.group}
+                                                    onChange={(e) => setStatsFilter({ ...statsFilter, group: e.target.value })}
+                                                >
+                                                    <option value="all">Tous</option>
+                                                    {groups.map(group => (
+                                                        <option key={group.id} value={group.name}>{group.name}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Enseignant</label>
+                                                <select
+                                                    className="border p-2 rounded bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100"
+                                                    value={statsFilter.teacher}
+                                                    onChange={(e) => setStatsFilter({ ...statsFilter, teacher: e.target.value })}
+                                                >
+                                                    <option value="all">Tous</option>
+                                                    {teachers.map(teacher => (
+                                                        <option key={teacher.id} value={teacher.name}>{teacher.name}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Période</label>
+                                                <select
+                                                    className="border p-2 rounded bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100"
+                                                    value={statsFilter.period}
+                                                    onChange={(e) => setStatsFilter({ ...statsFilter, period: e.target.value })}
+                                                >
+                                                    <option value="week">Semaine</option>
+                                                    <option value="month">Mois</option>
+                                                    <option value="quarter">Trimestre</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Charts */}
+                                    <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-${layoutDensity === 'compact' ? '4' : '6'}`}>
+                                        <div className="card fade-in scale-hover">
+                                            <div className="chart-container">
+                                                <canvas ref={chartRefs.usersByType} aria-label="Graphique de la répartition des utilisateurs par type"></canvas>
+                                            </div>
+                                        </div>
+                                        <div className="card fade-in scale-hover">
+                                            <div className="chart-container">
+                                                <canvas ref={chartRefs.teachersStatus} aria-label="Graphique du statut des enseignants"></canvas>
+                                            </div>
+                                        </div>
+                                        <div className="card fade-in scale-hover">
+                                            <div className="chart-container">
+                                                <canvas ref={chartRefs.documentsByCategory} aria-label="Graphique des documents par catégorie"></canvas>
+                                            </div>
+                                        </div>
+                                        <div className="card fade-in scale-hover">
+                                            <div className="chart-container">
+                                                <canvas ref={chartRefs.constraintsByDay} aria-label="Graphique des contraintes par jour"></canvas>
+                                            </div>
+                                        </div>
+                                        <div className="card fade-in scale-hover">
+                                            <div className="chart-container">
+                                                <canvas ref={chartRefs.documentsOverTime} aria-label="Graphique des documents téléversés dans le temps"></canvas>
+                                            </div>
+                                        </div>
+                                        <div className="card fade-in scale-hover">
+                                            <div className="chart-container">
+                                                <canvas ref={chartRefs.onlineUsersGauge} aria-label="Graphique de l'activité des utilisateurs en ligne"></canvas>
+                                            </div>
+                                        </div>
+                                        <div className="card fade-in scale-hover">
+                                            <div className="chart-container">
+                                                <canvas ref={chartRefs.docTrendChart} aria-label="Graphique des tendances des documents"></canvas>
+                                            </div>
+                                        </div>
+                                        <div className="card fade-in scale-hover">
+                                            <div className="chart-container">
+                                                <canvas ref={chartRefs.attendanceByGroup} aria-label="Graphique du taux de présence par groupe"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Tables and Heatmap */}
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                        <div className="card fade-in scale-hover">
+                                            <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">Occupation des salles</h3>
+                                            <div className="heatmap-container">
+                                                <table className="heatmap-table w-full">
+                                                    <thead>
+                                                        <tr>
+                                                            <th></th>
+                                                            {generateHeatmapData().slots.map(slot => (
+                                                                <th key={slot}>{slot}</th>
+                                                            ))}
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {generateHeatmapData().days.map((day, dayIndex) => (
+                                                            <tr key={day}>
+                                                                <th>{day}</th>
+                                                                {generateHeatmapData().heatmap[dayIndex].map((value, slotIndex) => (
+                                                                    <td
+                                                                        key={`${day}-${slotIndex}`}
+                                                                        className={`heatmap-${value === 0 ? 'low' : value < 3 ? 'medium' : 'high'}`}
+                                                                    >
+                                                                        {value}
+                                                                    </td>
+                                                                ))}
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                                <div className="heatmap-legend">
+                                                    <div className="heatmap-low"></div><span>Faible</span>
+                                                    <div className="heatmap-medium"></div><span>Moyen</span>
+                                                    <div className="heatmap-high"></div><span>Élevé</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="card fade-in scale-hover">
+                                            <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">Contraintes par type</h3>
+                                            <div className="table-container">
+                                                <table className="w-full">
+                                                    <thead>
+                                                        <tr>
+                                                            <th className="p-4">Type</th>
+                                                            <th className="p-4">Nombre</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {Object.entries(
+                                                            constraints.reduce((acc, c) => {
+                                                                acc[c.type] = (acc[c.type] || 0) + 1;
+                                                                return acc;
+                                                            }, {})
+                                                        ).map(([type, count]) => (
+                                                            <tr key={type} className="border-b hover:bg-gray-50 dark:hover:bg-gray-700">
+                                                                <td className="p-4 text-gray-800 dark:text-gray-100">{type}</td>
+                                                                <td className="p-4 text-gray-800 dark:text-gray-100">{count}</td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div className="card fade-in scale-hover">
+                                            <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">Documents par enseignant</h3>
+                                            <div className="table-container">
+                                                <table className="w-full">
+                                                    <thead>
+                                                        <tr>
+                                                            <th className="p-4">Enseignant</th>
+                                                            <th className="p-4">Nombre de Documents</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {teachers
+                                                            .filter(teacher => statsFilter.teacher === 'all' || teacher.name === statsFilter.teacher)
+                                                            .map(teacher => (
+                                                                <tr key={teacher.id} className="border-b hover:bg-gray-50 dark:hover:bg-gray-700">
+                                                                    <td className="p-4 text-gray-800 dark:text-gray-100">{teacher.name}</td>
+                                                                    <td className="p-4 text-gray-800 dark:text-gray-100">{documents.filter(d => d.uploadedBy === teacher.id).length}</td>
+                                                                </tr>
+                                                            ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    </main>
+                </div>
+            );
+        }
+
+        const rootElement = document.getElementById('root');
+        if (rootElement) {
+            ReactDOM.render(<StatisticsDashboard />, rootElement);
+        } else {
+            console.error('Root element not found');
+        }
+
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        if (loadingOverlay) {
+            loadingOverlay.addEventListener('animationend', () => {
+                loadingOverlay.style.display = 'none';
+            });
+        }
+    </script>
+</body>
+</html>

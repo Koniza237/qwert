@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Voir les groupes pour Fareno University">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="shortcut icon" href="FARENOUNIVERSITY.jpg" type="image/x-icon">
+    <title>Voir Groupes - Fareno University</title>
+    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.24.7/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        #background-image {
+            background-size: 200% 200%;
+            animation: gradientShift 15s ease-in-out infinite;
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        #root {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+        }
+        .fade-in {
+            animation: fadeIn 1s ease-in-out;
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        .button-click {
+            animation: clickEffect 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        @keyframes clickEffect {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.95); }
+            100% { transform: scale(1); }
+        }
+        .card {
+            transition: transform 0.3s ease, opacity 0.5s ease, box-shadow 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            background: linear-gradient(145deg, #ffffff, #e5e7eb);
+        }
+        .card-animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        .gradient-button {
+            background: linear-gradient(45deg, #1e3a8a, #3b82f6);
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+        .gradient-button:hover {
+            background: linear-gradient(45deg, #1e40af, #3b82f6);
+            transform: scale(1.05);
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeOut 1s ease-in-out forwards;
+            animation-delay: 0.5s;
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; display: none; }
+        }
+        .profile-photo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            cursor: pointer;
+        }
+        .photo-placeholder {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #d1d5db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+        .error-message {
+            color: #dc2626;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+        .success-message {
+            color: #15803d;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+        .sortable:hover {
+            cursor: pointer;
+            background-color: #e5e7eb;
+        }
+        .hover-effect {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .hover-effect:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body className="min-h-screen">
+    <div id="background-image" className="bg-gradient-to-br from-blue-900 via-gray-600 to-blue-900"></div>
+    <div id="loadingOverlay" className="loading-overlay">
+        <div className="text-2xl font-semibold text-gray-800 animate-spin">🛠️</div>
+    </div>
+    <div id="root" className="w-full"></div>
+    <div className="fixed bottom-4 right-4 bg-gray-800 text-white text-sm rounded-lg px-3 py-1 shadow-lg">
+        <span id="datetime" aria-live="polite"></span>
+    </div>
+
+    <script type="text/babel">
+        function ViewGroups() {
+            const [groups, setGroups] = React.useState([]);
+            const [timeSpent, setTimeSpent] = React.useState(0);
+            const [showModal, setShowModal] = React.useState(false);
+            const [modalAction, setModalAction] = React.useState('');
+            const [currentGroup, setCurrentGroup] = React.useState({ id: '', name: '', studentCount: '' });
+            const [user, setUser] = React.useState(null);
+            const [profilePhoto, setProfilePhoto] = React.useState(null);
+            const [isOnline, setIsOnline] = React.useState(navigator.onLine);
+            const [searchQuery, setSearchQuery] = React.useState('');
+            const [currentPage, setCurrentPage] = React.useState(1);
+            const [sortConfig, setSortConfig] = React.useState({ key: 'name', direction: 'asc' });
+            const [error, setError] = React.useState('');
+            const [success, setSuccess] = React.useState('');
+            const itemsPerPage = 10;
+
+            React.useEffect(() => {
+                const startTime = Date.now();
+                const timer = setInterval(() => {
+                    setTimeSpent(Math.floor((Date.now() - startTime) / 1000));
+                }, 1000);
+
+                const updateDateTime = () => {
+                    const now = new Date();
+                    const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                    const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Africa/Lagos' };
+                    const date = now.toLocaleDateString('fr-FR', optionsDate);
+                    const time = now.toLocaleTimeString('fr-FR', optionsTime);
+                    const datetimeElement = document.getElementById('datetime');
+                    if (datetimeElement) {
+                        datetimeElement.textContent = `${time}, ${date}`;
+                    }
+                };
+                updateDateTime();
+                const dateTimeTimer = setInterval(updateDateTime, 1000);
+
+                try {
+                    const userData = localStorage.getItem('connectadmin');
+                    if (userData) {
+                        const parsedData = JSON.parse(userData);
+                        if (parsedData.name) setUser(parsedData);
+                    }
+                } catch (e) {
+                    console.error('Erreur lors du parsing de connectadmin:', e);
+                    setUser({ name: 'Admin' });
+                }
+
+                try {
+                    const savedPhoto = localStorage.getItem('adminProfilePhoto');
+                    if (savedPhoto) {
+                        setProfilePhoto(savedPhoto);
+                    }
+                } catch (e) {
+                    console.error('Erreur lors du parsing de adminProfilePhoto:', e);
+                }
+
+                fetchGroups();
+
+                const handleOnline = () => setIsOnline(true);
+                const handleOffline = () => setIsOnline(false);
+                window.addEventListener('online', handleOnline);
+                window.removeEventListener('offline', handleOffline);
+
+                return () => {
+                    clearInterval(timer);
+                    clearInterval(dateTimeTimer);
+                    window.removeEventListener('online', handleOnline);
+                    window.removeEventListener('offline', handleOffline);
+                };
+            }, []);
+
+            React.useEffect(() => {
+                const animateCards = () => {
+                    const cards = document.querySelectorAll('.card');
+                    cards.forEach((card, index) => {
+                        setTimeout(() => {
+                            card.classList.add('card-animate');
+                        }, index * 200);
+                    });
+                };
+                animateCards();
+            }, []);
+
+            const formatTimeSpent = (seconds) => {
+                const hrs = Math.floor(seconds / 3600);
+                const mins = Math.floor((seconds % 3600) / 60);
+                const secs = seconds % 60;
+                return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            };
+
+            const fetchGroups = async () => {
+                try {
+                    const response = await fetch('/api/resources/groups');
+                    if (!response.ok) throw new Error('Erreur lors du chargement des groupes');
+                    const data = await response.json();
+                    setGroups(data);
+                } catch (err) {
+                    console.error('Erreur lors du chargement des groupes:', err);
+                    setError('Erreur lors du chargement: ' + err.message);
+                }
+            };
+
+            const openModal = (action, group = { id: '', name: '', studentCount: '' }) => {
+                setModalAction(action);
+                setCurrentGroup(group);
+                setShowModal(true);
+                setError('');
+                setSuccess('');
+            };
+
+            const closeModal = () => {
+                if (currentGroup.name || currentGroup.studentCount) {
+                    if (!window.confirm('Voulez-vous abandonner les modifications non enregistrées ?')) return;
+                }
+                setShowModal(false);
+                setModalAction('');
+                setCurrentGroup({ id: '', name: '', studentCount: '' });
+                setError('');
+                setSuccess('');
+            };
+
+            const handleInputChange = (e) => {
+                const { name, value } = e.target;
+                setCurrentGroup(prev => ({
+                    ...prev,
+                    [name]: name === 'studentCount' ? parseInt(value) || '' : value
+                }));
+            };
+
+            const saveGroup = async (e) => {
+                e.preventDefault();
+                try {
+                    if (groups.some(g => g.id !== currentGroup.id && g.name.toLowerCase() === currentGroup.name.toLowerCase())) {
+                        throw new Error('Un groupe avec ce nom existe déjà.');
+                    }
+                    if (currentGroup.studentCount <= 0) {
+                        throw new Error('Le nombre d\'étudiants doit être supérieur à 0.');
+                    }
+                    const method = modalAction === 'edit' ? 'PUT' : 'POST';
+                    const endpoint = modalAction === 'edit' ? `/api/resources/groups/${currentGroup.id}` : '/api/resources/groups';
+                    const response = await fetch(endpoint, {
+                        method,
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            name: currentGroup.name.trim(),
+                            studentCount: currentGroup.studentCount,
+                            lastUpdated: new Date().toISOString()
+                        })
+                    });
+                    if (!response.ok) throw new Error(`Erreur lors de ${modalAction === 'edit' ? 'la mise à jour' : 'l\'ajout'}`);
+                    await fetchGroups();
+                    closeModal();
+                    setSuccess(`${modalAction === 'edit' ? 'Modification' : 'Ajout'} effectué avec succès.`);
+                    setTimeout(() => setSuccess(''), 3000);
+                } catch (err) {
+                    console.error('Erreur:', err);
+                    setError(`Erreur lors de ${modalAction === 'edit' ? 'la mise à jour' : 'l\'ajout'}: ` + err.message);
+                }
+            };
+
+            const deleteGroup = async (id) => {
+                if (!window.confirm('Voulez-vous vraiment supprimer ce groupe ?')) return;
+                try {
+                    const response = await fetch(`/api/resources/groups/${id}`, { method: 'DELETE' });
+                    if (!response.ok) throw new Error('Erreur lors de la suppression');
+                    await fetchGroups();
+                    setSuccess('Groupe supprimé avec succès.');
+                    setTimeout(() => setSuccess(''), 3000);
+                } catch (err) {
+                    console.error('Erreur lors de la suppression:', err);
+                    setError('Erreur lors de la suppression: ' + err.message);
+                }
+            };
+
+            const handleLogout = async () => {
+                if (!window.confirm('Voulez-vous vraiment vous déconnecter ?')) return;
+                try {
+                    await fetch('/api/logout', { method: 'POST' });
+                    localStorage.removeItem('connectadmin');
+                    localStorage.removeItem('adminProfilePhoto');
+                    window.location.href = 'choix.html';
+                } catch (err) {
+                    console.error('Erreur lors de la déconnexion:', err);
+                }
+            };
+
+            const handlePhotoUpload = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                if (!file.type.startsWith('image/')) {
+                    setError('Veuillez sélectionner une image valide.');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const imageData = reader.result;
+                    setProfilePhoto(imageData);
+                    localStorage.setItem('adminProfilePhoto', imageData);
+                };
+                reader.onerror = () => {
+                    setError('Erreur lors du chargement de l\'image.');
+                };
+                reader.readAsDataURL(file);
+            };
+
+            const handleClick = (e) => {
+                e.target.classList.add('button-click');
+                setTimeout(() => e.target.classList.remove('button-click'), 300);
+            };
+
+            const handleBulkGroupImport = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = async (event) => {
+                    try {
+                        const data = new Uint8Array(event.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                        const json = XLSX.utils.sheet_to_json(sheet);
+                        for (const group of json) {
+                            if (!group.name || !group.studentCount) {
+                                throw new Error('Format de fichier invalide.');
+                            }
+                            await fetch('/api/resources/groups', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ ...group, lastUpdated: new Date().toISOString() })
+                            });
+                        }
+                        fetchGroups();
+                        setSuccess('Groupes importés avec succès.');
+                        setTimeout(() => setSuccess(''), 3000);
+                    } catch (err) {
+                        console.error('Erreur lors de l\'import:', err);
+                        setError('Erreur lors de l\'import: ' + err.message);
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            };
+
+            const exportToCSV = () => {
+                const headers = ['Nom', 'Nombre d\'étudiants', 'Dernière Mise à Jour'];
+                const data = groups.map(g => [
+                    g.name,
+                    g.studentCount,
+                    g.lastUpdated ? new Date(g.lastUpdated).toLocaleString('fr-FR') : ''
+                ]);
+                const csv = [headers, ...data].map(row => row.join(',')).join('\n');
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'groupes.csv';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            };
+
+            const handleSort = (key) => {
+                let direction = 'asc';
+                if (sortConfig.key === key && sortConfig.direction === 'asc') {
+                    direction = 'desc';
+                }
+                setSortConfig({ key, direction });
+            };
+
+            const sortedGroups = React.useMemo(() => {
+                let sortableItems = [...groups];
+                if (sortConfig.key) {
+                    sortableItems.sort((a, b) => {
+                        if (a[sortConfig.key] < b[sortConfig.key]) {
+                            return sortConfig.direction === 'asc' ? -1 : 1;
+                        }
+                        if (a[sortConfig.key] > b[sortConfig.key]) {
+                            return sortConfig.direction === 'asc' ? 1 : -1;
+                        }
+                        return 0;
+                    });
+                }
+                return sortableItems;
+            }, [groups, sortConfig]);
+
+            const filteredGroups = sortedGroups.filter(g => 
+                g.name?.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+            const paginatedGroups = filteredGroups.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+            const totalPages = Math.ceil(filteredGroups.length / itemsPerPage);
+
+            return (
+                <div className="min-h-screen">
+                    <header className="bg-white shadow-md p-4 flex justify-between items-center">
+                        <div className="flex items-center gap-4">
+                            <button
+                                className="gradient-button text-white px-6 py-3 rounded-lg hover-effect focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                onClick={() => window.location.href = 'dashboard.html'}
+                                onMouseDown={handleClick}
+                                aria-label="Retour au Tableau de Bord"
+                            >
+                                ← Retour au Tableau de Bord
+                            </button>
+                            <h1 className="text-xl font-bold text-gray-800">Voir Groupes</h1>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <span className="text-gray-600">Temps passé : {formatTimeSpent(timeSpent)}</span>
+                            <span className={`text-sm ${isOnline ? 'text-green-600' : 'text-red-600'}`}>
+                                {isOnline ? 'En ligne' : 'Hors ligne'}
+                            </span>
+                            <label className="cursor-pointer">
+                                {profilePhoto ? (
+                                    <img
+                                        src={profilePhoto}
+                                        alt="Photo de profil"
+                                        className="profile-photo"
+                                        onClick={() => document.getElementById('photo-upload').click()}
+                                    />
+                                ) : (
+                                    <div
+                                        className="photo-placeholder"
+                                        onClick={() => document.getElementById('photo-upload').click()}
+                                    >
+                                        👤
+                                    </div>
+                                )}
+                                <input
+                                    id="photo-upload"
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={handlePhotoUpload}
+                                    aria-label="Télécharger une photo de profil"
+                                />
+                            </label>
+                            <span className="text-gray-800 font-semibold">{user ? user.name : 'Admin'}</span>
+                        </div>
+                    </header>
+                    <main className="p-6 max-w-7xl mx-auto">
+                        <h2 className="text-2xl font-bold mb-4 text-gray-800 fade-in">Liste des Groupes 👥</h2>
+                        <div className="flex justify-between mb-4">
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    placeholder="Rechercher par nom..."
+                                    className="border p-2 rounded w-64"
+                                    value={searchQuery}
+                                    onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+                                    aria-label="Rechercher des groupes"
+                                />
+                            </div>
+                            <div className="flex gap-2">
+                                <button
+                                    className="gradient-button text-white px-4 py-2 rounded hover-effect"
+                                    onClick={exportToCSV}
+                                    onMouseDown={handleClick}
+                                    aria-label="Exporter en CSV"
+                                >
+                                    Exporter CSV
+                                </button>
+                                <label className="gradient-button text-white px-4 py-2 rounded-lg hover-effect cursor-pointer">
+                                    Importer XLSX
+                                    <input
+                                        type="file"
+                                        accept=".xlsx"
+                                        className="hidden"
+                                        onChange={handleBulkGroupImport}
+                                        aria-label="Importer des groupes via XLSX"
+                                    />
+                                </label>
+                                <button
+                                    className="gradient-button text-white px-4 py-2 rounded-lg hover-effect pulse"
+                                    onClick={() => openModal('add')}
+                                    onMouseDown={handleClick}
+                                    aria-label="Ajouter un groupe"
+                                >
+                                    Ajouter Groupe
+                                </button>
+                            </div>
+                        </div>
+                        {error && <p className="error-message">{error}</p>}
+                        {success && <p className="success-message">{success}</p>}
+                        <div className="card p-6 rounded-lg shadow-md">
+                            <table className="w-full">
+                                <thead>
+                                    <tr className="bg-blue-500 text-white">
+                                        <th
+                                            className="p-3 text-left sortable"
+                                            onClick={() => handleSort('name')}
+                                            aria-label="Trier par nom"
+                                        >
+                                            Nom {sortConfig.key === 'name' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}
+                                        </th>
+                                        <th
+                                            className="p-3 text-left sortable"
+                                            onClick={() => handleSort('studentCount')}
+                                            aria-label="Trier par nombre d'étudiants"
+                                        >
+                                            Nombre d'étudiants {sortConfig.key === 'studentCount' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}
+                                        </th>
+                                        <th className="p-3 text-left">Dernière Mise à Jour</th>
+                                        <th className="p-3 text-left">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {paginatedGroups.length > 0 ? (
+                                        paginatedGroups.map(group => (
+                                            <tr key={group.id} className="border-b hover:bg-gray-50">
+                                                <td className="p-3">{group.name}</td>
+                                                <td className="p-3">{group.studentCount}</td>
+                                                <td className="p-3">{group.lastUpdated ? new Date(group.lastUpdated).toLocaleString('fr-FR') : '-'}</td>
+                                                <td className="p-3 flex gap-2">
+                                                    <button
+                                                        className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 hover-effect"
+                                                        onClick={() => openModal('edit', group)}
+                                                        onMouseDown={handleClick}
+                                                        aria-label={`Modifier groupe ${group.name}`}
+                                                    >
+                                                        Modifier
+                                                    </button>
+                                                    <button
+                                                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 hover-effect"
+                                                        onClick={() => deleteGroup(group.id)}
+                                                        onMouseDown={handleClick}
+                                                        aria-label={`Supprimer groupe ${group.name}`}
+                                                    >
+                                                        Supprimer
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="4" className="p-3 text-center text-gray-500">
+                                                Aucun groupe trouvé
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div className="flex justify-center mt-4">
+                            <button
+                                className="px-3 py-1 mx-1 rounded bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100"
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                aria-label="Page précédente"
+                            >
+                                Précédent
+                            </button>
+                            <span className="px-3 py-1 mx-1">Page {currentPage} sur {totalPages}</span>
+                            <button
+                                className="px-3 py-1 mx-1 rounded bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100"
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                disabled={currentPage === totalPages}
+                                aria-label="Page suivante"
+                            >
+                                Suivant
+                            </button>
+                        </div>
+                        {showModal && (
+                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 fade-in">
+                                <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+                                    <h3 className="text-lg font-bold mb-4">{modalAction === 'edit' ? 'Modifier' : 'Ajouter'} Groupe</h3>
+                                    <form onSubmit={saveGroup}>
+                                        <input
+                                            type="text"
+                                            name="name"
+                                            placeholder="Nom du groupe"
+                                            className="border p-2 rounded w-full mb-2"
+                                            value={currentGroup.name}
+                                            onChange={handleInputChange}
+                                            required
+                                            aria-label="Nom du groupe"
+                                        />
+                                        <input
+                                            type="number"
+                                            name="studentCount"
+                                            placeholder="Nombre d'étudiants"
+                                            className="border p-2 rounded w-full mb-2"
+                                            value={currentGroup.studentCount}
+                                            onChange={handleInputChange}
+                                            min="1"
+                                            required
+                                            aria-label="Nombre d'étudiants"
+                                        />
+                                        {error && <p className="error-message">{error}</p>}
+                                        <div className="flex justify-end gap-2">
+                                            <button
+                                                type="button"
+                                                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 hover-effect"
+                                                onClick={closeModal}
+                                                onMouseDown={handleClick}
+                                                aria-label="Annuler"
+                                            >
+                                                Annuler
+                                            </button>
+                                            <button
+                                                type="submit"
+                                                className="gradient-button text-white px-4 py-2 rounded hover-effect"
+                                                onMouseDown={handleClick}
+                                                aria-label={modalAction === 'edit' ? 'Modifier groupe' : 'Ajouter groupe'}
+                                            >
+                                                {modalAction === 'edit' ? 'Modifier' : 'Ajouter'}
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        )}
+                    </main>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<ViewGroups />, document.getElementById('root'));
+
+        document.getElementById('loadingOverlay').addEventListener('animationend', () => {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        });
+    </script>
+</body>
+</html>

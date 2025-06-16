@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Page de connexion enseignant pour Fareno University">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="shortcut icon" href="FARENOUNIVERSITY.jpg" type="image/x-icon">
+    <title>Connexion Enseignant - Fareno University</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .fade-in {
+            animation: fadeIn 1s ease-in-out;
+        }
+        .bounce {
+            animation: bounce 1.5s infinite;
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        .button-click {
+            animation: clickEffect 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        @keyframes clickEffect {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.95); }
+            100% { transform: scale(1); }
+        }
+        .hover-effect {
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+        }
+        .hover-effect:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        .error-message {
+            color: #dc2626;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            display: none;
+        }
+        .success-message {
+            color: #15803d;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            display: none;
+        }
+        .input-error {
+            border-color: #dc2626;
+        }
+        .password-toggle {
+            cursor: pointer;
+            user-select: none;
+        }
+        .gradient-button {
+            background: linear-gradient(45deg, #8b5cf6, #a78bfa);
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeOut 1s ease-in-out forwards;
+            animation-delay: 0.5s;
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; display: none; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center" id="background">
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="text-2xl font-semibold text-gray-800 animate-spin">👩‍🏫</div>
+    </div>
+    <div class="bg-white rounded-xl p-8 shadow-2xl max-w-md w-full text-center fade-in" role="main">
+        <h1 class="text-4xl font-bold text-gray-800 mb-6">Connexion Enseignant</h1>
+        <p class="text-gray-600 mb-8">Entrez vos identifiants pour accéder à votre espace enseignant.</p>
+        <form id="loginForm" class="space-y-4" novalidate>
+            <div class="relative">
+                <input
+                    type="email"
+                    id="email"
+                    placeholder="Email"
+                    class="border p-4 rounded w-full bg-gray-100 text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    required
+                    aria-describedby="emailError"
+                />
+                <p id="emailError" class="error-message"></p>
+            </div>
+            <div class="relative">
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Mot de passe"
+                    class="border p-4 rounded w-full bg-gray-100 text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    required
+                    aria-describedby="passwordError"
+                />
+                <span class="absolute right-3 top-4 password-toggle" onclick="togglePassword()">👁️</span>
+                <p id="passwordError" class="error-message"></p>
+            </div>
+            <div class="flex items-center justify-between">
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" id="rememberMe" class="rounded">
+                    <span class="text-gray-600 text-sm">Se souvenir de moi</span>
+                </label>
+                <a href="/forgot-password-teacher.html" class="text-purple-600 text-sm hover:underline">Mot de passe oublié ?</a>
+            </div>
+            <button
+                type="submit"
+                id="loginButton"
+                class="w-full gradient-button text-white py-3 px-6 rounded-lg font-semibold hover-effect pulse focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                disabled
+                onclick="handleClick(this)"
+            >
+                <span id="buttonText">Se connecter</span>
+                <span id="loadingSpinner" class="hidden animate-spin">⏳</span>
+            </button>
+            <p id="errorMessage" class="error-message" aria-live="assertive"></p>
+            <p id="successMessage" class="success-message" aria-live="assertive"></p>
+        </form>
+        <a href="choix.html" class="absolute top-4 left-4 text-white font-medium hover:underline" aria-label="Retour à la page de choix">Retour</a>
+        <div class="absolute top-4 left-4 text-white text-lg bounce" aria-hidden="true">👩‍🏫</div>
+        <div class="fixed bottom-4 right-4 bg-gray-800 text-white text-sm rounded-lg px-3 py-1 shadow-lg">
+            <span id="datetime" aria-live="polite"></span>
+        </div>
+    </div>
+    <script>
+        const colors = [
+            'bg-gradient-to-br from-red-500 to-orange-600',
+            'bg-gradient-to-br from-orange-600 to-yellow-500',
+            'bg-gradient-to-br from-yellow-500 to-green-400',
+            'bg-gradient-to-br from-green-400 to-blue-500',
+            'bg-gradient-to-br from-blue-500 to-indigo-600',
+            'bg-gradient-to-br from-indigo-600 to-purple-600',
+            'bg-gradient-to-br from-purple-600 to-red-500'
+        ];
+
+        let colorIndex = 0;
+        const background = document.getElementById('background');
+
+        function changeBackgroundColor() {
+            background.className = `min-h-screen flex items-center justify-center ${colors[colorIndex]}`;
+            colorIndex = (colorIndex + 1) % colors.length;
+        }
+
+        changeBackgroundColor();
+        setInterval(changeBackgroundColor, 10000);
+
+        function updateDateTime() {
+            const datetimeElement = document.getElementById('datetime');
+            if (datetimeElement) {
+                const now = new Date();
+                const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+                const date = now.toLocaleDateString('fr-FR', optionsDate);
+                const time = now.toLocaleTimeString('fr-FR', optionsTime);
+                datetimeElement.textContent = `${time}, ${date}`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+        });
+
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.querySelector('.password-toggle');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.textContent = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.textContent = '👁️';
+            }
+        }
+
+        function validateEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        function validateForm() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const emailError = document.getElementById('emailError');
+            const passwordError = document.getElementById('passwordError');
+            const loginButton = document.getElementById('loginButton');
+
+            let isValid = true;
+
+            if (!email) {
+                emailError.textContent = 'Veuillez entrer un email.';
+                emailError.style.display = 'block';
+                document.getElementById('email').classList.add('input-error');
+                isValid = false;
+            } else if (!validateEmail(email)) {
+                emailError.textContent = 'Veuillez entrer un email valide.';
+                emailError.style.display = 'block';
+                document.getElementById('email').classList.add('input-error');
+                isValid = false;
+            } else {
+                emailError.style.display = 'none';
+                document.getElementById('email').classList.remove('input-error');
+            }
+
+            if (!password) {
+                passwordError.textContent = 'Veuillez entrer un mot de passe.';
+                passwordError.style.display = 'block';
+                document.getElementById('password').classList.add('input-error');
+                isValid = false;
+            } else if (password.length < 6) {
+                passwordError.textContent = 'Le mot de passe doit contenir au moins 6 caractères.';
+                passwordError.style.display = 'block';
+                document.getElementById('password').classList.add('input-error');
+                isValid = false;
+            } else {
+                passwordError.style.display = 'none';
+                document.getElementById('password').classList.remove('input-error');
+            }
+
+            loginButton.disabled = !isValid;
+        }
+
+        document.getElementById('email').addEventListener('input', validateForm);
+        document.getElementById('password').addEventListener('input', validateForm);
+
+        function handleClick(element) {
+            element.classList.add('button-click');
+            setTimeout(() => {
+                element.classList.remove('button-click');
+            }, 300);
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+            const loginButton = document.getElementById('loginButton');
+            const buttonText = document.getElementById('buttonText');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+
+            loginButton.disabled = true;
+            buttonText.classList.add('hidden');
+            loadingSpinner.classList.remove('hidden');
+
+            try {
+                const response = await fetch('ress-ens.json');
+                if (!response.ok) {
+                    throw new Error(`Erreur HTTP: ${response.status}`);
+                }
+                const teachers = await response.json();
+
+                const teacher = teachers.find(
+                    (teacher) => teacher.email === email && teacher.password === password
+                );
+
+                if (teacher) {
+                    errorMessage.style.display = 'none';
+                    successMessage.textContent = 'Connexion réussie ! Redirection...';
+                    successMessage.style.display = 'block';
+                    localStorage.setItem('connectteacher', JSON.stringify({ 
+                        email: teacher.email,
+                        rememberMe
+                    }));
+                    setTimeout(() => {
+                        window.location.href = 'teacher-dashboard.html';
+                    }, 1000);
+                } else {
+                    errorMessage.textContent = 'Email ou mot de passe incorrect.';
+                    errorMessage.style.display = 'block';
+                    successMessage.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Erreur lors de la lecture de teachers.json:', error);
+                errorMessage.textContent = 'Erreur de connexion. Veuillez réessayer plus tard.';
+                errorMessage.style.display = 'block';
+                successMessage.style.display = 'none';
+            } finally {
+                loginButton.disabled = false;
+                buttonText.classList.remove('hidden');
+                loadingSpinner.classList.add('hidden');
+            }
+        });
+
+        // Ensure loading overlay is removed after animation
+        document.getElementById('loadingOverlay').addEventListener('animationend', () => {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        });
+
+        // Initial validation
+        validateForm();
+    </script>
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Choix du groupe pour les étudiants de Fareno University">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="shortcut icon" href="FARENOUNIVERSITY.jpg" type="image/x-icon">
+    <title>Choix de Groupe - Fareno University</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .fade-in {
+            animation: fadeIn 1s ease-in-out;
+        }
+        .bounce {
+            animation: bounce 1.5s infinite;
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        .button-click {
+            animation: clickEffect 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        @keyframes clickEffect {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.95); }
+            100% { transform: scale(1); }
+        }
+        .hover-effect {
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+        }
+        .hover-effect:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        .gradient-student {
+            background: linear-gradient(45deg, #22c55e, #4ade80);
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeOut 1s ease-in-out forwards;
+            animation-delay: 0.5s;
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; display: none; }
+        }
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1.5em;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center" id="background">
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="text-2xl font-semibold text-gray-800 animate-spin">🎓</div>
+    </div>
+    <div class="bg-white rounded-xl p-8 shadow-2xl max-w-md w-full text-center fade-in" role="main">
+        <h1 class="text-4xl font-bold text-gray-800 mb-6">Bienvenue à Fareno University</h1>
+        <p class="text-gray-600 mb-6">Dans quel groupe êtes-vous ?</p>
+        <div class="space-y-4">
+            <select 
+                id="groupSelect" 
+                class="block w-full border border-gray-300 rounded-lg py-3 px-4 text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500" 
+                aria-label="Sélectionner votre groupe"
+            >
+                <option value="" disabled selected>Sélectionnez votre groupe</option>
+                <option value="Bachelor 1 A">Bachelor 1 A</option>
+                <option value="Bachelor 1 B">Bachelor 1 B</option>
+                <option value="Bachelor 2">Bachelor 2</option>
+                <option value="Bachelor 3">Bachelor 3</option>
+                <option value="Master 1">Master 1</option>
+                <option value="Master 2">Master 2</option>
+            </select>
+            <button 
+                id="submitButton"
+                class="block w-full gradient-student text-white py-3 px-6 rounded-lg font-semibold hover-effect pulse focus:outline-none focus:ring-2 focus:ring-green-500" 
+                aria-label="Continuer vers la connexion étudiant"
+                onclick="handleSubmit()"
+            >
+                Continuer
+            </button>
+        </div>
+        <div class="fixed bottom-4 right-4 bg-gray-800 text-white text-sm rounded-lg px-3 py-1 shadow-lg">
+            <span id="datetime" aria-live="polite"></span>
+        </div>
+    </div>
+    <div class="absolute top-4 left-4 text-white text-lg bounce" aria-hidden="true">🎓</div>
+    <script>
+        const colors = [
+            'bg-gradient-to-br from-red-500 to-orange-600',
+            'bg-gradient-to-br from-orange-600 to-yellow-500',
+            'bg-gradient-to-br from-yellow-500 to-green-400',
+            'bg-gradient-to-br from-green-400 to-blue-500',
+            'bg-gradient-to-br from-blue-500 to-indigo-600',
+            'bg-gradient-to-br from-indigo-600 to-purple-600',
+            'bg-gradient-to-br from-purple-600 to-red-500'
+        ];
+
+        let colorIndex = 0;
+        const background = document.getElementById('background');
+
+        function changeBackgroundColor() {
+            background.className = `min-h-screen flex items-center justify-center ${colors[colorIndex]}`;
+            colorIndex = (colorIndex + 1) % colors.length;
+        }
+
+        changeBackgroundColor();
+        setInterval(changeBackgroundColor, 10000);
+
+        function updateDateTime() {
+            const now = new Date();
+            const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Africa/Lagos' };
+            const date = now.toLocaleDateString('fr-FR', optionsDate);
+            const time = now.toLocaleTimeString('fr-FR', optionsTime);
+            document.getElementById('datetime').textContent = `${time} WAT, ${date}`;
+        }
+
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+
+        function handleClick(element) {
+            element.classList.add('button-click');
+            setTimeout(() => {
+                element.classList.remove('button-click');
+            }, 300);
+        }
+
+        function handleSubmit() {
+            const groupSelect = document.getElementById('groupSelect');
+            const submitButton = document.getElementById('submitButton');
+            if (!groupSelect.value) {
+                alert('Veuillez sélectionner un groupe.');
+                return;
+            }
+            handleClick(submitButton);
+            // Store the selected group in localStorage (optional, if needed on student.html)
+            localStorage.setItem('selectedGroup', groupSelect.value);
+            window.location.href = 'student.html';
+        }
+
+        // Ensure loading overlay is removed after animation
+        document.getElementById('loadingOverlay').addEventListener('animationend', () => {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        });
+    </script>
+</body>
+</html>

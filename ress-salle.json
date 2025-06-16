@@ -1,0 +1,51 @@
+[
+  {
+    "id": 1,
+    "name": "Amphi Konsamba",
+    "capacity": 80,
+    "equipment": "Wifi, Television, Clim",
+    "lastUpdated": "2025-06-15T12:11:45.726Z"
+  },
+  {
+    "id": 2,
+    "name": "Amphi Ndiki",
+    "capacity": 80,
+    "equipment": "Wifi, Television, projecteur",
+    "lastUpdated": "2025-06-15T12:12:17.292Z"
+  },
+  {
+    "id": 3,
+    "name": "Amphi No name 1 ( academie )",
+    "capacity": 80,
+    "equipment": "Wifi, Television",
+    "lastUpdated": "2025-06-15T12:13:16.608Z"
+  },
+  {
+    "id": 4,
+    "name": "Amphi No name 2 ( Reception )",
+    "capacity": 80,
+    "equipment": "Wifi, Television",
+    "lastUpdated": "2025-06-15T12:13:46.271Z"
+  },
+  {
+    "id": 5,
+    "name": "Amphi No name 3 ( Grande Salle )",
+    "capacity": 80,
+    "equipment": "Wifi, Television",
+    "lastUpdated": "2025-06-15T12:14:41.450Z"
+  },
+  {
+    "id": 6,
+    "name": "Amphi No name 4 ( Face fontaine )",
+    "capacity": 80,
+    "equipment": "Wifi, Television",
+    "lastUpdated": "2025-06-15T12:15:45.704Z"
+  },
+  {
+    "id": 7,
+    "name": "Amphi No name 5 ( Salle d'info )",
+    "capacity": 80,
+    "equipment": "Wifi, Television, Clim",
+    "lastUpdated": "2025-06-15T12:16:29.944Z"
+  }
+]

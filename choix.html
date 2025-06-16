@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Page de choix de connexion pour Fareno University">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="shortcut icon" href="FARENOUNIVERSITY.jpg" type="image/x-icon">
+    <title>Choix de Connexion - Fareno University</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+        }
+
+        #background {
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6, #7c3aed, #10b981);
+            background-size: 400% 400%;
+            animation: gradientFlow 15s ease infinite;
+        }
+
+        @keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .glass-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .fade-in {
+            animation: fadeIn 1.2s ease-in-out;
+        }
+
+        .bounce {
+            animation: bounce 2s infinite ease-in-out;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ripple::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 50%;
+            transform: scale(1);
+            transform-origin: center;
+            animation: rippleEffect 0.6s ease-out;
+        }
+
+        @keyframes rippleEffect {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(50); opacity: 0; }
+        }
+
+        .button-click::after {
+            animation: rippleEffect 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+
+        .hover-effect {
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+        }
+
+        .hover-effect:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .gradient-admin {
+            background: linear-gradient(45deg, #2563eb, #60a5fa);
+        }
+
+        .gradient-admin:hover {
+            background: linear-gradient(45deg, #1e40af, #3b82f6);
+        }
+
+        .gradient-teacher {
+            background: linear-gradient(45deg, #7c3aed, #a78bfa);
+        }
+
+        .gradient-teacher:hover {
+            background: linear-gradient(45deg, #6d28d9, #8b5cf6);
+        }
+
+        .gradient-student {
+            background: linear-gradient(45deg, #16a34a, #4ade80);
+        }
+
+        .gradient-student:hover {
+            background: linear-gradient(45deg, #15803d, #22c55e);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeOut 1.2s ease-in-out forwards;
+            animation-delay: 0.7s;
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; display: none; }
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #3b82f6;
+            border-top: 4px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .logo-placeholder {
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            animation: pulse 2s infinite;
+        }
+
+        .datetime-container {
+            background: rgba(31, 41, 55, 0.8);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center" id="background">
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+    <div class="glass-container rounded-2xl p-10 max-w-lg w-full text-center fade-in" role="main">
+        <div class="flex flex-col items-center mb-8">
+            <img
+                src="FARENOUNIVERSITY.jpg"
+                alt="Logo Fareno University"
+                class="logo-placeholder mb-4"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+            />
+            <div class="logo-placeholder mb-4" style="display: none;">FU</div>
+            <h1 class="text-3xl font-bold text-white mb-2">Fareno University</h1>
+            <p class="text-gray-200 text-sm">Choisissez votre type de connexion</p>
+        </div>
+        <div class="space-y-4">
+            <a 
+                href="admin.html" 
+                class="block w-full gradient-admin text-white py-3 px-6 rounded-lg font-semibold hover-effect ripple focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-transparent" 
+                aria-label="Connexion Administrateur"
+                onclick="handleClick(this)"
+            >
+                Connexion Administrateur
+            </a>
+            <a 
+                href="teacher.html" 
+                class="block w-full gradient-teacher text-white py-3 px-6 rounded-lg font-semibold hover-effect ripple focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-transparent" 
+                aria-label="Connexion Enseignant"
+                onclick="handleClick(this)"
+            >
+                Connexion Enseignant
+            </a>
+            <a 
+                href="choix-student.html" 
+                class="block w-full gradient-student text-white py-3 px-6 rounded-lg font-semibold hover-effect ripple focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-transparent" 
+                aria-label="Connexion Étudiant"
+                onclick="handleClick(this)"
+            >
+                Connexion Étudiant
+            </a>
+        </div>
+    </div>
+    <div class="absolute top-4 left-4 text-white text-2xl bounce" aria-hidden="true">🎓</div>
+    <div class="datetime-container fixed bottom-4 right-4 text-white text-sm rounded-lg px-4 py-2 shadow-lg">
+        <span id="datetime" aria-live="polite"></span>
+    </div>
+    <script>
+        function updateDateTime() {
+            const now = new Date();
+            const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Africa/Lagos' };
+            const date = now.toLocaleDateString('fr-FR', optionsDate);
+            const time = now.toLocaleTimeString('fr-FR', optionsTime);
+            document.getElementById('datetime').textContent = `${time} WAT, ${date}`;
+        }
+
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+
+        function handleClick(element) {
+            element.classList.add('button-click');
+            setTimeout(() => {
+                element.classList.remove('button-click');
+            }, 600);
+        }
+
+        document.getElementById('loadingOverlay').addEventListener('animationend', () => {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        });
+    </script>
+</body>
+</html>

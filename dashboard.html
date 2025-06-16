@@ -1,0 +1,1516 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Tableau de bord administratif pour Fareno University">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="shortcut icon" href="FARENOUNIVERSITY.jpg" type="image/x-icon">
+    <title>Tableau de Bord Administratif - Fareno University</title>
+    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.20.15/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7fa;
+            margin: 0;
+            transition: background-color 0.3s ease;
+        }
+
+        .dark body {
+            background-color: #1f2937;
+        }
+
+        #background-image {
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            background-size: 200% 200%;
+            animation: gradientShift 15s ease-in-out infinite;
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            opacity: 0.8;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        #root {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            background-color: rgba(255, 255, 255, 0.97);
+            transition: background-color 0.3s ease;
+        }
+
+        .dark #root {
+            background-color: rgba(31, 41, 55, 0.97);
+        }
+
+        .slide-in {
+            animation: slideIn 0.6s ease-out;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        .bounce {
+            animation: bounce 2s infinite;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ripple::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 50%;
+            transform: scale(1);
+            transform-origin: center;
+            animation: rippleEffect 0.6s ease-out;
+        }
+
+        .button-click::after {
+            animation: rippleEffect 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes rippleEffect {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(50); opacity: 0; }
+        }
+
+        .hover-effect {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .hover-effect:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .glass-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark .glass-container {
+            background: rgba(31, 41, 55, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .dark .card {
+            background: #374151;
+            color: #e5e7eb;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: background-color 0.3s ease;
+        }
+
+        .dark .table-container {
+            background: #374151;
+        }
+
+        .table-container table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table-container th,
+        .table-container td {
+            padding: 1.25rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .dark .table-container th,
+        .dark .table-container td {
+            border-bottom: 1px solid #4b5563;
+        }
+
+        .table-container th {
+            background: linear-gradient(45deg, #10b981, #34d399);
+            color: white;
+            font-weight: 600;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #1e40af, #2563eb);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .sidebar button {
+            font-weight: 500;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar button:hover {
+            transform: scale(1.03);
+            background-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .sidebar button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 6px;
+            height: 100%;
+            background: #ffffff44;
+            transform: translateY(-50%);
+            transition: width 0.3s ease;
+        }
+
+        .sidebar button:hover::after {
+            width: 100%;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            padding: 1.5rem;
+        }
+
+        .logo-placeholder {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background-color: #ffffff44;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        header {
+            background: linear-gradient(90deg, #1e40af, #2563eb);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .profile-photo {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            object-fit: cover;
+            cursor: pointer;
+            border: 3px solid #e5e7eb;
+            transition: transform 0.3s ease;
+        }
+
+        .profile-photo:hover {
+            transform: scale(1.1);
+        }
+
+        .photo-placeholder {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            font-size: 1.2rem;
+            cursor: pointer;
+            border: 2px solid #d1d5db;
+            transition: transform 0.3s ease;
+        }
+
+        .photo-placeholder:hover {
+            transform: scale(1.1);
+        }
+
+        .gradient-button {
+            background: linear-gradient(45deg, #10b981, #34d399);
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .gradient-button:hover {
+            background: linear-gradient(45deg, #059669, #10b981);
+            transform: scale(1.05);
+        }
+
+        .gradient-purple-button {
+            background: linear-gradient(45deg, #7c3aed, #a78bfa);
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .gradient-purple-button:hover {
+            background: linear-gradient(45deg, #6d28d9, #8b5cf6);
+            transform: scale(1.05);
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 0.9rem;
+            margin-top: 0.75rem;
+            font-weight: 500;
+            transform: translateY(-10px);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .error-message.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .success-message {
+            color: #10b981;
+            font-size: 0.9rem;
+            margin-top: 0.75rem;
+            font-weight: 500;
+            transform: translateY(-10px);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .success-message.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeOut 1s ease-in-out forwards;
+            animation-delay: 0.5s;
+        }
+
+        .dark .loading-overlay {
+            background: rgba(31, 41, 55, 0.9);
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; display: none; }
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-left: 4px solid #10b981;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .message-bubble {
+            max-width: 80%;
+            padding: 12px 18px;
+            margin: 8px 12px;
+            border-radius: 20px;
+            word-wrap: break-word;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-message {
+            background: linear-gradient(45deg, #7c3aed, #a78bfa);
+            color: white;
+            align-self: flex-end;
+        }
+
+        .ai-message {
+            background-color: #e5e7eb;
+            color: #1f2937;
+            align-self: flex-start;
+        }
+
+        .dark .ai-message {
+            background-color: #4b5563;
+            color: #e5e7eb;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .typing-dot {
+            width: 10px;
+            height: 10px;
+            background-color: #6b7280;
+            border-radius: 50%;
+            margin: 0 5px;
+            animation: typing 1.2s infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.3s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.6s; }
+
+        @keyframes typing {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        .floating-label {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            color: #6b7280;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            pointer-events: none;
+        }
+
+        input:focus ~ .floating-label,
+        input:not(:placeholder-shown) ~ .floating-label {
+            top: -0.75rem;
+            left: 0.75rem;
+            font-size: 0.75rem;
+            color: #2563eb;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 0 0.25rem;
+        }
+
+        .dark input:focus ~ .floating-label,
+        .dark input:not(:placeholder-shown) ~ .floating-label {
+            background: rgba(31, 41, 55, 0.9);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex">
+    <div id="background-image"></div>
+    <div id="loadingOverlay" class="loading-overlay">
+        <div className="spinner"></div>
+    </div>
+    <div id="root" class="w-full"></div>
+    <div class="absolute top-4 left-4 text-white text-2xl bounce" aria-hidden="true">🎓</div>
+    <div class="fixed bottom-4 right-4 bg-gray-900 text-white text-sm rounded-lg px-4 py-2 shadow-lg dark:bg-gray-800">
+        <span id="datetime" aria-live="polite"></span>
+    </div>
+
+    <script type="text/babel">
+        function Dashboard() {
+            const [activeSection, setActiveSection] = React.useState('dashboard');
+            const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+            const [showModal, setShowModal] = React.useState(false);
+            const [modalType, setModalType] = React.useState('');
+            const [modalAction, setModalAction] = React.useState('');
+            const [user, setUser] = React.useState(null);
+            const [profilePhoto, setProfilePhoto] = React.useState(null);
+            const [students, setStudents] = React.useState([]);
+            const [teachers, setTeachers] = React.useState([]);
+            const [admins, setAdmins] = React.useState([]);
+            const [documents, setDocuments] = React.useState([]);
+            const [constraints, setConstraints] = React.useState([]);
+            const [newUser, setNewUser] = React.useState({ type: 'teacher', name: '', email: '', role: 'Enseignant', password: '' });
+            const [newDocument, setNewDocument] = React.useState({ title: '', category: '', file: null });
+            const [aiInput, setAiInput] = React.useState('');
+            const [aiMessages, setAiMessages] = React.useState([]);
+            const [aiError, setAiError] = React.useState('');
+            const [aiLoading, setAiLoading] = React.useState(false);
+            const [timeSpent, setTimeSpent] = React.useState(0);
+            const [isOnline, setIsOnline] = React.useState(navigator.onLine);
+            const [theme, setTheme] = React.useState('light');
+            const [fontSize, setFontSize] = React.useState('medium');
+            const [layoutDensity, setLayoutDensity] = React.useState('normal');
+            const [isLoading, setIsLoading] = React.useState(true);
+            const [profileData, setProfileData] = React.useState({ name: '', email: '', role: '' });
+            const [isEditing, setIsEditing] = React.useState(false);
+            const [profileErrors, setProfileErrors] = React.useState({});
+            const [profileSuccess, setProfileSuccess] = React.useState('');
+            const [passwordData, setPasswordData] = React.useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+            const [passwordErrors, setPasswordErrors] = React.useState({});
+            const [showPasswordModal, setShowPasswordModal] = React.useState(false);
+
+            React.useEffect(() => {
+                const userData = localStorage.getItem('connectadmin');
+                if (userData) {
+                    try {
+                        const parsedData = JSON.parse(userData);
+                        if (parsedData.name && parsedData.role) {
+                            setUser(parsedData);
+                            setProfileData({ name: parsedData.name, email: parsedData.email, role: parsedData.role });
+                        }
+                    } catch (e) {}
+                }
+
+                const savedPhoto = localStorage.getItem('adminProfilePhoto');
+                if (savedPhoto) {
+                    try {
+                        setProfilePhoto(JSON.parse(savedPhoto));
+                    } catch {
+                        setProfilePhoto(savedPhoto);
+                    }
+                }
+
+                const savedTheme = localStorage.getItem('theme') || 'light';
+                setTheme(savedTheme);
+                document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+
+                const savedFontSize = localStorage.getItem('fontSize') || 'medium';
+                setFontSize(savedFontSize);
+                document.documentElement.style.fontSize = savedFontSize === 'small' ? '14px' : savedFontSize === 'large' ? '18px' : '16px';
+
+                const savedLayoutDensity = localStorage.getItem('layoutDensity') || 'normal';
+                setLayoutDensity(savedLayoutDensity);
+
+                const startTime = Date.now();
+                const timer = setInterval(() => {
+                    setTimeSpent(Math.floor((Date.now() - startTime) / 1000));
+                }, 1000);
+
+                const updateDateTime = () => {
+                    const now = new Date();
+                    const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                    const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Africa/Lagos' };
+                    const date = now.toLocaleDateString('fr-FR', optionsDate);
+                    const time = now.toLocaleTimeString('fr-FR', optionsTime);
+                    document.getElementById('datetime').textContent = `${time} WAT, ${date}`;
+                };
+                updateDateTime();
+                const dateTimeTimer = setInterval(updateDateTime, 1000);
+
+                fetchData();
+
+                const handleOnline = () => setIsOnline(true);
+                const handleOffline = () => setIsOnline(false);
+                window.addEventListener('online', handleOnline);
+                window.addEventListener('offline', handleOffline);
+
+                return () => {
+                    clearInterval(timer);
+                    clearInterval(dateTimeTimer);
+                    window.removeEventListener('online', handleOnline);
+                    window.removeEventListener('offline', handleOffline);
+                };
+            }, []);
+
+            const fetchData = async () => {
+                setIsLoading(true);
+                try {
+                    const [teachersData, studentsData, adminsData, documentsData, constraintsData] = await Promise.all([
+                        fetch('/api/users/teachers').then(res => res.json()),
+                        fetch('/api/users/students').then(res => res.json()),
+                        fetch('/api/users/admins').then(res => res.json()),
+                        fetch('/api/documents').then(res => res.json()),
+                        fetch('/api/constraints').then(res => res.json())
+                    ]);
+                    setTeachers(teachersData);
+                    setStudents(studentsData);
+                    setAdmins(adminsData);
+                    setDocuments(documentsData);
+                    setConstraints(constraintsData);
+                } catch (err) {
+                    console.error('Erreur lors du chargement des données:', err);
+                    alert('Erreur lors du chargement des données: ' + err.message);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+
+            const formatTime = (seconds) => {
+                const hrs = Math.floor(seconds / 3600);
+                const mins = Math.floor((seconds % 3600) / 60);
+                const secs = seconds % 60;
+                return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            };
+
+            const handleLogout = async () => {
+                if (window.confirm('Voulez-vous vraiment vous déconnecter ?')) {
+                    try {
+                        await fetch('/api/logout', { method: 'POST' });
+                        localStorage.removeItem('connectadmin');
+                        localStorage.removeItem('adminProfilePhoto');
+                        window.location.href = 'choix.html';
+                    } catch (err) {
+                        console.error('Erreur lors de la déconnexion:', err);
+                    }
+                }
+            };
+
+            const openModal = (type, action) => {
+                setModalType(type);
+                setModalAction(action);
+                setShowModal(true);
+                if (type === 'users') {
+                    setNewUser(action === 'edit' ? { ...newUser, password: '' } : { type: 'teacher', name: '', email: '', role: 'Enseignant', password: '' });
+                } else if (type === 'documents') {
+                    setNewDocument(action === 'edit' ? { ...newDocument, file: null } : { title: '', category: '', file: null });
+                }
+            };
+
+            const closeModal = () => {
+                setShowModal(false);
+                setModalType('');
+                setModalAction('');
+                setNewUser({ type: 'teacher', name: '', email: '', role: 'Enseignant', password: '' });
+                setNewDocument({ title: '', category: '', file: null });
+            };
+
+            const handleInputChange = (e, setter, state) => {
+                const { name, value } = e.target;
+                setter({ ...state, [name]: value });
+            };
+
+            const handleFileChange = (e) => {
+                setNewDocument({ ...newDocument, file: e.target.files[0] });
+            };
+
+            const handlePhotoUpload = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                if (!file.type.startsWith('image/')) {
+                    alert('Veuillez sélectionner une image valide.');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const imageData = reader.result;
+                    setProfilePhoto(imageData);
+                    localStorage.setItem('adminProfilePhoto', imageData);
+                };
+                reader.readAsDataURL(file);
+            };
+
+            const validateProfile = () => {
+                const errors = {};
+                if (!profileData.name.trim()) {
+                    errors.name = 'Le nom est requis.';
+                }
+                if (!profileData.email) {
+                    errors.email = 'L\'email est requis.';
+                } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profileData.email)) {
+                    errors.email = 'Veuillez entrer un email valide.';
+                }
+                setProfileErrors(errors);
+                return Object.keys(errors).length === 0;
+            };
+
+            const handleProfileSubmit = async (e) => {
+                e.preventDefault();
+                if (!validateProfile()) return;
+
+                try {
+                    const response = await fetch('/api/users/admins/update', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name: profileData.name, email: profileData.email })
+                    });
+                    if (!response.ok) throw new Error('Erreur lors de la mise à jour du profil');
+                    const updatedUser = await response.json();
+                    setUser(updatedUser);
+                    localStorage.setItem('connectadmin', JSON.stringify(updatedUser));
+                    setProfileSuccess('Profil mis à jour avec succès !');
+                    setTimeout(() => setProfileSuccess(''), 3000);
+                    setIsEditing(false);
+                } catch (err) {
+                    setProfileErrors({ general: 'Erreur lors de la mise à jour: ' + err.message });
+                }
+            };
+
+            const validatePassword = () => {
+                const errors = {};
+                if (!passwordData.currentPassword) {
+                    errors.currentPassword = 'Le mot de passe actuel est requis.';
+                }
+                if (!passwordData.newPassword) {
+                    errors.newPassword = 'Le nouveau mot de passe est requis.';
+                } else if (passwordData.newPassword.length < 6) {
+                    errors.newPassword = 'Le mot de passe doit contenir au moins 6 caractères.';
+                }
+                if (passwordData.newPassword !== passwordData.confirmPassword) {
+                    errors.confirmPassword = 'Les mots de passe ne correspondent pas.';
+                }
+                setPasswordErrors(errors);
+                return Object.keys(errors).length === 0;
+            };
+
+            const handlePasswordSubmit = async (e) => {
+                e.preventDefault();
+                if (!validatePassword()) return;
+
+                try {
+                    const response = await fetch('/api/users/admins/change-password', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            currentPassword: passwordData.currentPassword,
+                            newPassword: passwordData.newPassword
+                        })
+                    });
+                    if (!response.ok) throw new Error('Erreur lors du changement de mot de passe');
+                    setProfileSuccess('Mot de passe changé avec succès !');
+                    setTimeout(() => setProfileSuccess(''), 3000);
+                    setShowPasswordModal(false);
+                    setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+                } catch (err) {
+                    setPasswordErrors({ general: 'Erreur: ' + err.message });
+                }
+            };
+
+            const saveResource = async (e) => {
+                e.preventDefault();
+                try {
+                    let stateSetter, endpoint, data;
+                    if (modalType === 'users') {
+                        stateSetter = modalAction === 'edit' ? setNewUser : null;
+                        endpoint = `/api/users/${newUser.type}s`;
+                        data = newUser.type === 'teacher' ? { email: newUser.email, password: newUser.password } :
+                               newUser.type === 'student' ? { name: newUser.name, password: newUser.password } :
+                               { email: newUser.email, password: newUser.password };
+                    } else if (modalType === 'documents') {
+                        stateSetter = setDocuments;
+                        endpoint = '/api/documents';
+                        const formData = new FormData();
+                        formData.append('title', newDocument.title);
+                        formData.append('category', newDocument.category);
+                        formData.append('file', newDocument.file);
+                        formData.append('uploadedBy', user ? user.name : 'Admin');
+                        const response = await fetch(endpoint, {
+                            method: 'POST',
+                            body: formData
+                        });
+                        if (!response.ok) throw new Error('Erreur lors de l\'enregistrement du document');
+                        const newData = await response.json();
+                        stateSetter(prev => [...prev, newData]);
+                        closeModal();
+                        fetchData();
+                        return;
+                    }
+
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    if (!response.ok) throw new Error('Erreur lors de l\'enregistrement');
+                    const newData = await response.json();
+                    fetchData();
+                    closeModal();
+                } catch (err) {
+                    console.error('Erreur lors de l\'enregistrement:', err);
+                    alert('Erreur lors de l\'enregistrement: ' + err.message);
+                }
+            };
+
+            const handleDownload = async (documentId, documentName) => {
+                try {
+                    const response = await fetch(`/api/documents/${documentId}/download`);
+                    if (!response.ok) throw new Error('Erreur lors du téléchargement');
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = documentName;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+                } catch (err) {
+                    console.error('Erreur lors du téléchargement:', err);
+                    alert('Erreur lors du téléchargement: ' + err.message);
+                }
+            };
+
+            const handleDelete = async (documentId) => {
+                if (!window.confirm('Voulez-vous vraiment supprimer ce document ?')) return;
+                try {
+                    const response = await fetch(`/api/documents/${documentId}`, {
+                        method: 'DELETE'
+                    });
+                    if (!response.ok) throw new Error('Erreur lors de la suppression');
+                    setDocuments(documents.filter(doc => doc.id !== documentId));
+                } catch (err) {
+                    console.error('Erreur lors de la suppression:', err);
+                    alert('Erreur lors de la suppression: ' + err.message);
+                }
+            };
+
+            const handleAiSubmit = async (e) => {
+                e.preventDefault();
+                if (!aiInput.trim()) {
+                    setAiError('Veuillez entrer une question.');
+                    return;
+                }
+                if (!isOnline) {
+                    setAiError('L\'IA ne peut pas répondre car vous êtes hors ligne.');
+                    return;
+                }
+                const newMessage = { id: Date.now(), content: aiInput, type: 'user', timestamp: new Date().toISOString() };
+                setAiMessages([...aiMessages, newMessage]);
+                setAiInput('');
+                setAiLoading(true);
+                try {
+                    const response = await fetch('/api/ai', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ prompt: aiInput })
+                    });
+                    if (!response.ok) throw new Error('Erreur API');
+                    const data = await response.json();
+                    const aiMessage = { id: Date.now() + 1, content: data.response, type: 'ai', timestamp: new Date().toISOString() };
+                    setAiMessages(prev => [...prev, aiMessage]);
+                    setDocuments([...documents, {
+                        id: documents.length + 1,
+                        title: 'Réponse IA',
+                        category: 'Notes Internes',
+                        fileName: `reponse_ia_${Date.now()}.txt`,
+                        uploadedBy: user ? user.name : 'Admin',
+                        uploadDate: new Date().toISOString().slice(0, 16).replace('T', ' ')
+                    }]);
+                    setAiError('');
+                } catch (error) {
+                    setAiError('Erreur: ' + error.message);
+                } finally {
+                    setAiLoading(false);
+                }
+            };
+
+            const handleAiSuggestion = (suggestion) => {
+                setAiInput(suggestion);
+            };
+
+            const clearConversation = () => {
+                if (window.confirm('Voulez-vous effacer la conversation ?')) {
+                    setAiMessages([]);
+                    setAiError('');
+                }
+            };
+
+            const handleThemeChange = (e) => {
+                const newTheme = e.target.value;
+                setTheme(newTheme);
+                localStorage.setItem('theme', newTheme);
+                document.documentElement.classList.toggle('dark', newTheme === 'dark');
+            };
+
+            const handleFontSizeChange = (e) => {
+                const newFontSize = e.target.value;
+                setFontSize(newFontSize);
+                localStorage.setItem('fontSize', newFontSize);
+                document.documentElement.style.fontSize = newFontSize === 'small' ? '14px' : newFontSize === 'large' ? '18px' : '16px';
+            };
+
+            const handleLayoutDensityChange = (e) => {
+                const newLayoutDensity = e.target.value;
+                setLayoutDensity(newLayoutDensity);
+                localStorage.setItem('layoutDensity', newLayoutDensity);
+            };
+
+            const handleClick = (e) => {
+                e.target.classList.add('button-click');
+                setTimeout(() => e.target.classList.remove('button-click'), 600);
+            };
+
+            const sections = {
+                dashboard: (
+                    <div className={`p-6 max-w-7xl mx-auto slide-in ${layoutDensity === 'compact' ? 'space-y-4' : 'space-y-6'}`}>
+                        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8">Tableau de bord 📊</h2>
+                        {isLoading ? (
+                            <div className="flex justify-center items-center h-64">
+                                <div className="spinner"></div>
+                            </div>
+                        ) : (
+                            <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-${layoutDensity === 'compact' ? '4' : '6'}`}>
+                                <div className="card hover-effect">
+                                    <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Administrateurs 👑</h3>
+                                    <p className="text-4xl font-bold text-blue-600 dark:text-blue-400">{admins.length}</p>
+                                </div>
+                                <div className="card hover-effect">
+                                    <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Étudiants 👨‍🎓</h3>
+                                    <p className="text-4xl font-bold text-green-600 dark:text-green-400">{students.length}</p>
+                                </div>
+                                <div className="card hover-effect">
+                                    <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Enseignants 👩‍🏫</h3>
+                                    <p className="text-4xl font-bold text-purple-600 dark:text-purple-400">{teachers.length}</p>
+                                </div>
+                                <div className="card hover-effect">
+                                    <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Documents 📄</h3>
+                                    <p className="text-4xl font-bold text-orange-600 dark:text-orange-400">{documents.length}</p>
+                                </div>
+                                <div className="card hover-effect">
+                                    <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Contraintes ⚖️</h3>
+                                    <p className="text-4xl font-bold text-red-600 dark:text-red-400">{constraints.length}</p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                ),
+                profile: (
+                    <div className={`p-6 max-w-7xl mx-auto slide-in ${layoutDensity === 'compact' ? 'space-y-4' : 'space-y-6'}`}>
+                        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8">Profil 👤</h2>
+                        <div className="glass-container rounded-2xl p-8">
+                            <div className="flex flex-col items-center mb-6">
+                                <label htmlFor="profilePhotoUpload" className="cursor-pointer">
+                                    {profilePhoto ? (
+                                        <img
+                                            src={profilePhoto}
+                                            alt="Photo de profil"
+                                            className="profile-photo pulse"
+                                        />
+                                    ) : (
+                                        <div className="photo-placeholder pulse">📷</div>
+                                    )}
+                                </label>
+                                <input
+                                    id="profilePhotoUpload"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handlePhotoUpload}
+                                    className="hidden"
+                                    aria-label="Changer la photo de profil"
+                                />
+                                <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mt-4">{profileData.name}</h3>
+                                <p className="text-gray-600 dark:text-gray-300">{profileData.email}</p>
+                            </div>
+                            <form onSubmit={handleProfileSubmit} className="space-y-4">
+                                <div className="relative fade-in">
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        placeholder=" "
+                                        className="border border-gray-300 p-4 rounded-lg w-full bg-white/10 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 backdrop-blur-sm"
+                                        value={profileData.name}
+                                        onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
+                                        disabled={!isEditing}
+                                        required
+                                        aria-describedby="nameError"
+                                    />
+                                    <label htmlFor="name" className="floating-label">Nom</label>
+                                    {profileErrors.name && <p className="error-message show" id="nameError">{profileErrors.name}</p>}
+                                </div>
+                                <div className="relative fade-in">
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        placeholder=" "
+                                        className="border border-gray-300 p-4 rounded-lg w-full bg-white/10 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 backdrop-blur-sm"
+                                        value={profileData.email}
+                                        onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                                        disabled={!isEditing}
+                                        required
+                                        aria-describedby="emailError"
+                                    />
+                                    <label htmlFor="email" className="floating-label">Email</label>
+                                    {profileErrors.email && <p className="error-message show" id="emailError">{profileErrors.email}</p>}
+                                </div>
+                                <div className="relative fade-in">
+                                    <input
+                                        type="text"
+                                        name="role"
+                                        placeholder=" "
+                                        className="border border-gray-300 p-4 rounded-lg w-full bg-white/10 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 backdrop-blur-sm"
+                                        value={profileData.role}
+                                        disabled
+                                        aria-describedby="role"
+                                    />
+                                    <label htmlFor="role" className="floating-label">Rôle</label>
+                                </div>
+                                {profileErrors.general && <p className="error-message show">{profileErrors.general}</p>}
+                                {profileSuccess && <p className="success-message show">{profileSuccess}</p>}
+                                <div className="flex justify-between gap-4">
+                                    {isEditing ? (
+                                        <>
+                                            <button
+                                                type="button"
+                                                className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 hover-effect ripple focus:outline-none focus:ring-2 focus:ring-gray-500"
+                                                onClick={() => {
+                                                    setIsEditing(false);
+                                                    setProfileData({ name: user.name, email: user.email, role: user.role });
+                                                    setProfileErrors({});
+                                                }}
+                                                onMouseDown={handleClick}
+                                            >
+                                                Annuler
+                                            </button>
+                                            <button
+                                                type="submit"
+                                                className="gradient-button text-white px-6 py-3 rounded-lg hover-effect ripple focus:outline-none focus:ring-2 focus:ring-green-500"
+                                                onMouseDown={handleClick}
+                                            >
+                                                Enregistrer
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <button
+                                                type="button"
+                                                className="gradient-button text-white px-6 py-3 rounded-lg hover-effect ripple focus:outline-none focus:ring-2 focus:ring-green-500"
+                                                onClick={() => setIsEditing(true)}
+                                                onMouseDown={handleClick}
+                                            >
+                                                Modifier Profil
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="gradient-purple-button text-white px-6 py-3 rounded-lg hover-effect ripple focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                                onClick={() => setShowPasswordModal(true)}
+                                                onMouseDown={handleClick}
+                                            >
+                                                Changer Mot de Passe
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
+                            </form>
+                        </div>
+                        {showPasswordModal && (
+                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 fade-in">
+                                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-96">
+                                    <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">Changer Mot de Passe</h3>
+                                    <form onSubmit={handlePasswordSubmit} className="space-y-4">
+                                        <div className="relative fade-in">
+                                            <input
+                                                type="password"
+                                                name="currentPassword"
+                                                placeholder=" "
+                                                className="border border-gray-300 p-4 rounded-lg w-full bg-white/10 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 backdrop-blur-sm"
+                                                value={passwordData.currentPassword}
+                                                onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
+                                                required
+                                                aria-describedby="currentPasswordError"
+                                            />
+                                            <label htmlFor="currentPassword" className="floating-label">Mot de Passe Actuel</label>
+                                            {passwordErrors.currentPassword && <p className="error-message show" id="currentPasswordError">{passwordErrors.currentPassword}</p>}
+                                        </div>
+                                        <div className="relative fade-in">
+                                            <input
+                                                type="password"
+                                                name="newPassword"
+                                                placeholder=" "
+                                                className="border border-gray-300 p-4 rounded-lg w-full bg-white/10 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 backdrop-blur-sm"
+                                                value={passwordData.newPassword}
+                                                onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                                                required
+                                                aria-describedby="newPasswordError"
+                                            />
+                                            <label htmlFor="newPassword" className="floating-label">Nouveau Mot de Passe</label>
+                                            {passwordErrors.newPassword && <p className="error-message show" id="newPasswordError">{passwordErrors.newPassword}</p>}
+                                        </div>
+                                        <div className="relative fade-in">
+                                            <input
+                                                type="password"
+                                                name="confirmPassword"
+                                                placeholder=" "
+                                                className="border border-gray-300 p-4 rounded-lg w-full bg-white/10 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 backdrop-blur-sm"
+                                                value={passwordData.confirmPassword}
+                                                onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                                                required
+                                                aria-describedby="confirmPasswordError"
+                                            />
+                                            <label htmlFor="confirmPassword" className="floating-label">Confirmer Mot de Passe</label>
+                                            {passwordErrors.confirmPassword && <p className="error-message show" id="confirmPasswordError">{passwordErrors.confirmPassword}</p>}
+                                        </div>
+                                        {passwordErrors.general && <p className="error-message show">{passwordErrors.general}</p>}
+                                        <div className="flex justify-end gap-2">
+                                            <button
+                                                type="button"
+                                                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 hover-effect ripple"
+                                                onClick={() => {
+                                                    setShowPasswordModal(false);
+                                                    setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+                                                    setPasswordErrors({});
+                                                }}
+                                                onMouseDown={handleClick}
+                                            >
+                                                Annuler
+                                            </button>
+                                            <button
+                                                type="submit"
+                                                className="gradient-button text-white px-4 py-2 rounded hover-effect ripple"
+                                                onMouseDown={handleClick}
+                                            >
+                                                Enregistrer
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                ),
+                users: (
+                    <div className={`p-6 max-w-7xl mx-auto slide-in ${layoutDensity === 'compact' ? 'space-y-4' : 'space-y-6'}`}>
+                        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8">Gestion des Utilisateurs 👥</h2>
+                        <div className="flex justify-center gap-4">
+                            <button className="gradient-button text-white px-6 py-3 rounded-lg hover-effect focus:outline-none focus:ring-2 focus:ring-green-500" onClick={() => openModal('users', 'add')} onMouseDown={handleClick}>
+                                Ajouter Membre
+                            </button>
+                            <button className="gradient-purple-button text-white px-6 py-3 rounded-lg hover-effect focus:outline-none focus:ring-2 focus:ring-purple-500" onClick={() => window.location.href = 'voir_utilisateur.html'} onMouseDown={handleClick}>
+                                Voir Utilisateurs
+                            </button>
+                        </div>
+                        {showModal && modalType === 'users' && (
+                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-96">
+                                    <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">{modalAction === 'edit' ? 'Modifier' : 'Ajouter'} Membre</h3>
+                                    <form onSubmit={saveResource}>
+                                        <select name="type" className="border p-2 rounded w-full mb-2 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500" value={newUser.type} onChange={(e) => handleInputChange(e, setNewUser, newUser)} required>
+                                            <option value="teacher">Enseignant</option>
+                                            <option value="student">Étudiant</option>
+                                            <option value="admin">Administrateur</option>
+                                        </select>
+                                        {newUser.type === 'student' ? (
+                                            <input type="text" name="name" placeholder="Nom" className="border p-2 rounded w-full mb-2 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500" value={newUser.name} onChange={(e) => handleInputChange(e, setNewUser, newUser)} required />
+                                        ) : (
+                                            <input type="email" name="email" placeholder="E-mail" className="border p-2 rounded w-full mb-2 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500" value={newUser.email} onChange={(e) => handleInputChange(e, setNewUser, newUser)} required />
+                                        )}
+                                        <input type="password" name="password" placeholder="Mot de passe" className="border p-2 rounded w-full mb-2 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500" value={newUser.password} onChange={(e) => handleInputChange(e, setNewUser, newUser)} required />
+                                        <div className="flex justify-end gap-2">
+                                            <button type="button" className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 hover-effect" onClick={closeModal} onMouseDown={handleClick}>Annuler</button>
+                                            <button type="submit" className="gradient-button text-white px-4 py-2 rounded hover-effect" onMouseDown={handleClick}>{modalAction === 'edit' ? 'Modifier' : 'Ajouter'}</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                ),
+                documents: (
+                    <div className={`p-6 max-w-7xl mx-auto slide-in ${layoutDensity === 'compact' ? 'space-y-4' : 'space-y-6'}`}>
+                        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8">Gestion des Documents 📄</h2>
+                        <div className="flex justify-center gap-4 mb-6">
+                            <button className="gradient-button text-white px-6 py-3 rounded-lg hover-effect focus:outline-none focus:ring-2 focus:ring-green-500" onClick={() => openModal('documents', 'add')} onMouseDown={handleClick}>
+                                Ajouter Document
+                            </button>
+                        </div>
+                        <div className="table-container">
+                            <table className="w-full">
+                                <thead>
+                                    <tr>
+                                        <th className="p-4">Titre</th>
+                                        <th className="p-4">Catégorie</th>
+                                        <th className="p-4">Nom du Fichier</th>
+                                        <th className="p-4">Ajouté par</th>
+                                        <th className="p-4">Date d'Ajout</th>
+                                        <th className="p-4">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {documents.length > 0 ? (
+                                        documents.map(doc => (
+                                            <tr key={doc.id} className="border-b hover:bg-gray-50 dark:hover:bg-gray-700">
+                                                <td className="p-4 text-gray-800 dark:text-gray-100">{doc.title}</td>
+                                                <td className="p-4 text-gray-800 dark:text-gray-100">{doc.category}</td>
+                                                <td className="p-4 text-gray-800 dark:text-gray-100">{doc.fileName}</td>
+                                                <td className="p-4 text-gray-800 dark:text-gray-100">{doc.uploadedBy}</td>
+                                                <td className="p-4 text-gray-800 dark:text-gray-100">{doc.uploadDate}</td>
+                                                <td className="p-4 flex gap-2">
+                                                    <button
+                                                        className="gradient-button text-white px-4 py-1 rounded hover-effect focus:outline-none focus:ring-2 focus:ring-green-500"
+                                                        onClick={() => handleDownload(doc.id, doc.fileName)}
+                                                        onMouseDown={handleClick}
+                                                    >
+                                                        Télécharger
+                                                    </button>
+                                                    <button
+                                                        className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600 hover-effect focus:outline-none focus:ring-2 focus:ring-red-500"
+                                                        onClick={() => handleDelete(doc.id)}
+                                                        onMouseDown={handleClick}
+                                                    >
+                                                        Supprimer
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="6" className="p-4 text-center text-gray-500 dark:text-gray-400">
+                                                Aucun document disponible
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                        {showModal && modalType === 'documents' && (
+                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-96">
+                                    <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-3">Ajouter Document</h3>
+                                    <form onSubmit={saveResource}>
+                                        <input
+                                            type="text"
+                                            name="title"
+                                            placeholder="Titre du document"
+                                            className="border p-2 rounded w-full mb-2 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                            value={newDocument.title}
+                                            onChange={(e) => handleInputChange(e, setNewDocument, newDocument)}
+                                            required
+                                        />
+                                        <select
+                                            name="category"
+                                            className="border p-2 rounded w-full mb-2 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                            value={newDocument.category}
+                                            onChange={(e) => handleInputChange(e, setNewDocument, newDocument)}
+                                            required
+                                        >
+                                            <option value="">Sélectionner une catégorie</option>
+                                            <option value="Règlements">Règlements</option>
+                                            <option value="Plannings">Plannings</option>
+                                            <option value="Notes Internes">Notes Internes</option>
+                                            <option value="Autres">Autres</option>
+                                        </select>
+                                        <input
+                                            type="file"
+                                            name="file"
+                                            className="border p-2 rounded w-full mb-2 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100"
+                                            onChange={handleFileChange}
+                                            required
+                                        />
+                                        <div className="flex justify-end gap-2">
+                                            <button
+                                                type="button"
+                                                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 hover-effect"
+                                                onClick={closeModal}
+                                                onMouseDown={handleClick}
+                                            >
+                                                Annuler
+                                            </button>
+                                            <button
+                                                type="submit"
+                                                className="gradient-button text-white px-4 py-2 rounded hover-effect"
+                                                onMouseDown={handleClick}
+                                            >
+                                                Ajouter
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                ),
+                ai: (
+                    <div className={`p-6 max-w-7xl mx-auto slide-in ${layoutDensity === 'compact' ? 'space-y-4' : 'space-y-6'}`}>
+                        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8">Assistant IA 🤖</h2>
+                        <div className="card">
+                            <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg h-[calc(100vh-16rem)] overflow-y-auto mb-6 flex flex-col">
+                                {aiMessages.length > 0 ? (
+                                    aiMessages.map((msg) => (
+                                        <div
+                                            key={msg.id}
+                                            className={`message-bubble slide-in ${msg.type === 'user' ? 'user-message' : 'ai-message'}`}
+                                        >
+                                            <div className="text-gray-800 dark:text-gray-100">{msg.content}</div>
+                                            <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                                                {new Date(msg.timestamp).toLocaleString('fr-FR')}
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="text-center text-gray-500 dark:text-gray-400 mt-4">
+                                        Commencez une conversation avec l'IA !
+                                    </div>
+                                )}
+                                {aiLoading && (
+                                    <div className="typing-indicator slide-in">
+                                        <div className="typing-dot"></div>
+                                        <div className="typing-dot"></div>
+                                        <div className="typing-dot"></div>
+                                    </div>
+                                )}
+                            </div>
+                            {aiError && <p className="error-message mb-4">{aiError}</p>}
+                            <div className="flex flex-wrap gap-3 mb-6">
+                                {['Comment optimiser la gestion des utilisateurs ?', 'Quelles sont les meilleures pratiques pour les documents ?', 'Conseils pour gérer les contraintes administratives'].map((suggestion) => (
+                                    <button
+                                        key={suggestion}
+                                        className="bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-100 px-4 py-2 rounded-full hover:bg-gray-300 dark:hover:bg-gray-500 hover-effect focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                        onClick={() => handleAiSuggestion(suggestion)}
+                                        onMouseDown={handleClick}
+                                        aria-label={`Poser la question: ${suggestion}`}
+                                    >
+                                        {suggestion}
+                                    </button>
+                                ))}
+                            </div>
+                            <form onSubmit={handleAiSubmit} className="space-y-4">
+                                <textarea
+                                    placeholder="Posez une question..."
+                                    className="border p-4 rounded-lg w-full h-28 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    value={aiInput}
+                                    onChange={(e) => setAiInput(e.target.value)}
+                                    aria-label="Question pour l'assistant IA"
+                                ></textarea>
+                                <div className="flex space-x-3">
+                                    <button
+                                        type="submit"
+                                        className="gradient-purple-button text-white py-2 px-6 rounded-lg hover-effect pulse focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                        disabled={aiLoading}
+                                        onClick={handleClick}
+                                        aria-label="Envoyer la question"
+                                    >
+                                        {aiLoading ? 'Chargement... ⏳' : 'Envoyer'}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="bg-red-500 text-white py-2 px-6 rounded-lg hover:bg-red-600 hover-effect focus:outline-none focus:ring-2 focus:ring-red-500"
+                                        onClick={clearConversation}
+                                        onMouseDown={handleClick}
+                                        aria-label="Effacer la conversation"
+                                    >
+                                        Effacer
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                ),
+                settings: (
+                    <div className={`p-6 max-w-7xl mx-auto slide-in ${layoutDensity === 'compact' ? 'space-y-4' : 'space-y-6'}`}>
+                        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8">Paramètres ⚙️</h2>
+                        <div className="card">
+                            <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">Paramètres d'Affichage</h3>
+                            <div className="space-y-6">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Thème</label>
+                                    <select className="border p-2 rounded w-full bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500" value={theme} onChange={handleThemeChange}>
+                                        <option value="light">Clair</option>
+                                        <option value="dark">Sombre</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Taille de la police</label>
+                                    <select className="border p-2 rounded w-full bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500" value={fontSize} onChange={handleFontSizeChange}>
+                                        <option value="small">Petite</option>
+                                        <option value="medium">Moyenne</option>
+                                        <option value="large">Grande</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Densité de l'affichage</label>
+                                    <select className="border p-2 rounded w-full bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500" value={layoutDensity} onChange={handleLayoutDensityChange}>
+                                        <option value="compact">Compact</option>
+                                        <option value="normal">Normal</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Langue</label>
+                                    <select className="border p-2 rounded w-full bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                        <option value="fr">Français</option>
+                                        <option value="en">Anglais</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Fuseau Horaire</label>
+                                    <select className="border p-2 rounded w-full bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                        <option value="Africa/Lagos">Africa/Lagos (WAT)</option>
+                                        <option value="UTC">UTC</option>
+                                    </select>
+                                </div>
+                                <button className="gradient-button text-white px-6 py-3 rounded-lg hover-effect focus:outline-none focus:ring-2 focus:ring-green-500" onMouseDown={handleClick}>
+                                    Enregistrer les Paramètres
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                ),
+                help: (
+                    <div className={`p-6 max-w-7xl mx-auto slide-in ${layoutDensity === 'compact' ? 'space-y-4' : 'space-y-6'}`}>
+                        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8">Aide ❓</h2>
+                        <div className="card">
+                            <p className="mb-4 text-gray-600 dark:text-gray-300">Bienvenue dans la section d'aide. Voici des informations utiles pour utiliser le tableau de bord administratif de Fareno University.</p>
+                            <p className="mb-4 text-gray-600 dark:text-gray-300">Pour plus de détails, consultez la documentation ou contactez le support technique.</p>
+                            <a href="aide.html" className="gradient-purple-button text-white px-4 py-2 rounded-lg hover-effect focus:outline-none focus:ring-2 focus:ring-purple-500" onMouseDown={handleClick}>En savoir plus</a>
+                        </div>
+                    </div>
+                )
+            };
+
+            return (
+                <div className="flex min-h-screen w-full">
+                    <div className={`sidebar text-white w-72 space-y-6 py-8 px-4 fixed inset-y-0 left-0 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 transition duration-300 ease-in-out z-20`} role="navigation">
+                        <div className="logo-container">
+                            <img
+                                src="FARENOUNIVERSITY.jpg"
+                                alt="Logo Fareno University"
+                                className="logo-placeholder"
+                                onError={(e) => {
+                                    e.target.style.display = 'none';
+                                    e.target.nextSibling.style.paddingLeft = '0';
+                                }}
+                            />
+                            <h1 className="text-3xl font-bold text-white">Fareno University</h1>
+                        </div>
+                        <nav className="space-y-1">
+                            {['dashboard', 'profile', 'teachers', 'groups', 'schools', 'users', 'constraints', 'export', 'documents', 'messaging', 'ai', 'statistics', 'settings', 'help'].map(section => (
+                                <button
+                                    key={section}
+                                    className={`w-full text-left py-3 px-4 rounded-lg transition duration-200 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 ${activeSection === section && section !== 'teachers' && section !== 'groups' && section !== 'schools' && section !== 'users' && section !== 'constraints' && section !== 'statistics' ? 'bg-blue-600' : ''}`}
+                                    onClick={() => {
+                                        if (section === 'teachers') {
+                                            window.location.href = 'voir_teachers.html';
+                                        } else if (section === 'groups') {
+                                            window.location.href = 'voir_groups.html';
+                                        } else if (section === 'schools') {
+                                            window.location.href = 'voir_rooms.html';
+                                        } else if (section === 'users') {
+                                            window.location.href = 'voir_utilisateur.html';
+                                        } else if (section === 'constraints') {
+                                            window.location.href = 'voir_contrainte.html';
+                                        } else if (section === 'export') {
+                                            window.location.href = 'exportation.html';
+                                        } else if (section === 'messaging') {
+                                            window.location.href = 'messagerie.html';
+                                        } else if (section === 'statistics') {
+                                            window.location.href = 'statistiques.html';
+                                        } else {
+                                            setActiveSection(section);
+                                            if (window.innerWidth < 768) setIsSidebarOpen(false);
+                                        }
+                                    }}
+                                    onMouseDown={handleClick}
+                                    aria-label={`Aller à ${section}`}
+                                >
+                                    {section === 'dashboard' ? 'Tableau de bord 📊' :
+                                     section === 'profile' ? 'Profil 👤' :
+                                     section === 'teachers' ? 'Enseignants 👩‍🏫' :
+                                     section === 'groups' ? 'Groupes 📖' :
+                                     section === 'schools' ? 'Salles 🏫' :
+                                     section === 'users' ? 'Utilisateurs 👥' :
+                                     section === 'constraints' ? 'Contraintes 📅' :
+                                     section === 'export' ? 'Exportation 📤' :
+                                     section === 'documents' ? 'Documents 📜' :
+                                     section === 'messaging' ? 'Messagerie 💬' :
+                                     section === 'ai' ? 'Assistant IA 🤖' :
+                                     section === 'statistics' ? 'Statistiques 📉' :
+                                     section === 'settings' ? 'Paramètres ⚙️' :
+                                     'Aide 🌟'}
+                                </button>
+                            ))}
+                            <button
+                                className="w-full text-left py-3 px-4 rounded-lg transition bg-red-600 hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
+                                onClick={handleLogout}
+                                onMouseDown={handleClick}
+                                aria-label="Se déconnecter"
+                            >
+                                Déconnexion 🚪
+                            </button>
+                        </nav>
+                    </div>
+                    <div className="flex-1 flex flex-col w-full">
+                        <header className="bg-blue-800 text-white p-5 flex justify-between items-center">
+                            <div className="flex items-center">
+                                <button
+                                    className="md:hidden text-white focus:outline-none focus:ring-2 focus:ring-white"
+                                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                                    aria-label="Ouvrir le menu"
+                                >
+                                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                                    </svg>
+                                </button>
+                                <h1 className="text-2xl font-bold ml-4">Tableau de Bord Administratif</h1>
+                            </div>
+                            <div className="flex items-center space-x-6">
+                                <div className="flex items-center space-x-3">
+                                    <span className="text-white font-semibold">{user ? `Bienvenue, ${user.name}` : 'Admin'}</span>
+                                    <label htmlFor="photoUpload" className="cursor-pointer">
+                                        {profilePhoto ? (
+                                            <img
+                                                src={profilePhoto}
+                                                alt="Photo de profil"
+                                                className="profile-photo"
+                                            />
+                                        ) : (
+                                            <div className="photo-placeholder">📷</div>
+                                        )}
+                                    </label>
+                                    <input
+                                        id="photoUpload"
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handlePhotoUpload}
+                                        className="hidden"
+                                        aria-label="Changer la photo de profil"
+                                    />
+                                </div>
+                                <span className={`px-3 py-1 rounded-lg text-sm font-semibold ${isOnline ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'}`}>
+                                    {isOnline ? 'En ligne' : 'Hors ligne'}
+                                </span>
+                                <div className="text-sm font-semibold">Temps passé : {formatTime(timeSpent)}</div>
+                            </div>
+                        </header>
+                        <main className="flex-1 p-6 w-full" role="main">{sections[activeSection]}</main>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<Dashboard />, document.getElementById('root'));
+
+        document.getElementById('loadingOverlay').addEventListener('animationend', () => {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        });
+    </script>
+</body>
+</html>

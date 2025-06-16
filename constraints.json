@@ -1,0 +1,56 @@
+[
+  {
+    "id": 1,
+    "teacher": "mbock@gmail.com",
+    "group": "Bachelor 1 A",
+    "day": "Lundi",
+    "time": "10:00",
+    "type": "Indisponible",
+    "subject": "Introduction au droit"
+  },
+  {
+    "id": 2,
+    "teacher": "mbock@gmail.com",
+    "group": "Bachelor 1 B",
+    "day": "Lundi",
+    "time": "10:00",
+    "type": "Indisponible",
+    "subject": "Introduction au droit"
+  },
+  {
+    "id": 3,
+    "teacher": "mbock@gmail.com",
+    "group": "Bachelor 2",
+    "day": "Lundi",
+    "time": "10:00",
+    "type": "Indisponible",
+    "subject": "Introduction au droit"
+  },
+  {
+    "id": 4,
+    "teacher": "mbock@gmail.com",
+    "group": "Bachelor 3",
+    "day": "Lundi",
+    "time": "10:00",
+    "type": "Indisponible",
+    "subject": "Introduction au droit"
+  },
+  {
+    "id": 5,
+    "teacher": "mbock@gmail.com",
+    "group": "Master 1",
+    "day": "Lundi",
+    "time": "10:00",
+    "type": "Indisponible",
+    "subject": "Introduction au droit"
+  },
+  {
+    "id": 6,
+    "teacher": "mbock@gmail.com",
+    "group": "Master 2",
+    "day": "Lundi",
+    "time": "10:00",
+    "type": "Indisponible",
+    "subject": "Introduction au droit"
+  }
+]

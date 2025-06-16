@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Gérer les contraintes et matières pour Fareno University">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="shortcut icon" href="FARENOUNIVERSITY.jpg" type="image/x-icon">
+    <title>Gestion des Contraintes et Matières - Fareno University</title>
+    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.20.15/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7fa;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        #background-image {
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6, #10b981);
+            background-size: 300% 300%;
+            animation: gradientShift 15s ease-in-out infinite;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 0;
+            opacity: 0.85;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        #root {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            background-color: rgba(255, 255, 255, 0.975);
+            backdrop-filter: blur(5px);
+            width: 100%;
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .bounce {
+            animation: bounce 2s infinite;
+        }
+
+        .button-click {
+            animation: clickEffect 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes clickEffect {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.95); }
+            100% { transform: scale(1); }
+        }
+
+        .hover-effect {
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+
+        .hover-effect:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease-out;
+            width: 100%;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .table-container {
+            background: linear-gradient(145deg, #ffffff, #f1f5f9);
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            overflow: hidden;
+            margin-top: 1.5rem;
+            width: 100%;
+        }
+
+        .table-container table {
+            border-collapse: collapse;
+            border-spacing: 0;
+            width: 100%;
+        }
+
+        .table-container th,
+        .table-container td {
+            padding: 1.25rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .table-container th {
+            background: linear-gradient(45deg, #10b981, #34d399);
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.05rem;
+        }
+
+        .table-container tr:hover {
+            background-color: #f9fafb;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        header {
+            background: linear-gradient(90deg, #1e3a8a, #2563eb);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            width: 100%;
+        }
+
+        .gradient-button {
+            background: linear-gradient(to right, #10b981, #34d399);
+            transition: background-color 0.3s ease-in-out, transform 0.2s ease;
+        }
+
+        .gradient-button:hover {
+            background: linear-gradient(to right, #059669, #10b981);
+            transform: scale(1.05);
+        }
+
+        .gradient-blue-button {
+            background: linear-gradient(to right, #1e3a8a, #2563eb);
+            transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+        }
+
+        .gradient-blue-button:hover {
+            background: linear-gradient(to right, #1e40af, #3b82f6);
+            transform: scale(1.05);
+        }
+
+        .gradient-orange-button {
+            background: linear-gradient(to right, #f97316, #fb923c);
+            transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+        }
+
+        .gradient-orange-button:hover {
+            background: linear-gradient(to right, #ea580c, #f97316);
+            transform: scale(1.05);
+        }
+
+        .modal {
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+            padding: 2rem;
+            width: 100%;
+            max-width: 500px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .input-field {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 0.75rem;
+            width: 100%;
+            background-color: #f9fafb;
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .input-field:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16,185,129,0.1);
+            outline: none;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeOut 1s ease-in-out forwards;
+            animation-delay: 0.5s;
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; display: none; }
+        }
+
+        .action-button {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: medium;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        .spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #10b981;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex">
+    <div id="background-image"></div>
+    <div id="loadingOverlay" className="loading-overlay">
+        <div className="text-4xl font-bold text-gray-800 animate-spin">⚖️</div>
+    </div>
+    <div id="root" className="w-full"></div>
+    <div className="absolute top-4 left-4 text-white text-2xl bounce" aria-hidden="true">⚖️</div>
+
+    <script type="text/babel">
+        function ConstraintsPage() {
+            const [showModal, setShowModal] = React.useState(false);
+            const [showDeleteModal, setShowDeleteModal] = React.useState(false);
+            const [showSubjectModal, setShowSubjectModal] = React.useState(false);
+            const [showDeleteSubjectModal, setShowDeleteSubjectModal] = React.useState(false);
+            const [modalAction, setModalAction] = React.useState('add');
+            const [currentConstraint, setCurrentConstraint] = React.useState(null);
+            const [currentSubject, setCurrentSubject] = React.useState(null);
+            const [teachers, setTeachers] = React.useState([]);
+            const [groups, setGroups] = React.useState([]);
+            const [subjects, setSubjects] = React.useState([]);
+            const [constraints, setConstraints] = React.useState([]);
+            const [newConstraint, setNewConstraint] = React.useState({
+                teacher: '',
+                group: '',
+                day: '',
+                time: '',
+                type: '',
+                subject: ''
+            });
+            const [newSubject, setNewSubject] = React.useState({
+                name: '',
+                hourlyVolume: '',
+                remainingVolume: ''
+            });
+            const [error, setError] = React.useState('');
+            const [isDeleting, setIsDeleting] = React.useState({});
+            const [timetableDate, setTimetableDate] = React.useState('');
+            const [isGenerating, setIsGenerating] = React.useState(false);
+
+            React.useEffect(() => {
+                fetchResources();
+                fetchConstraints();
+                fetchSubjects();
+                fetchRemainingVolumes();
+            }, []);
+
+            const fetchResources = async () => {
+                try {
+                    const [teachersData, groupsData] = await Promise.all([
+                        fetch('/api/resources/teachers').then(async res => {
+                            if (!res.ok) {
+                                const errText = await res.text();
+                                throw new Error(`Erreur ${res.status} lors du chargement des enseignants: ${errText}`);
+                            }
+                            return res.json();
+                        }),
+                        fetch('/api/resources/groups').then(async res => {
+                            if (!res.ok) {
+                                const errText = await res.text();
+                                throw new Error(`Erreur ${res.status} lors du chargement des groupes: ${errText}`);
+                            }
+                            return res.json();
+                        })
+                    ]);
+                    setTeachers(teachersData);
+                    setGroups(groupsData);
+                } catch (err) {
+                    console.error('Erreur lors du chargement des ressources:', err);
+                    setError('Erreur lors du chargement des ressources: ' + err.message);
+                }
+            };
+
+            const fetchConstraints = async () => {
+                try {
+                    const data = await fetch('/api/constraints').then(async res => {
+                        if (!res.ok) {
+                            const errText = await res.text();
+                            throw new Error(`Erreur ${res.status} lors du chargement des contraintes: ${errText}`);
+                        }
+                        return res.json();
+                    });
+                    setConstraints(data);
+                } catch (err) {
+                    console.error('Erreur lors du chargement des contraintes:', err);
+                    setError('Erreur lors du chargement des contraintes: ' + err.message);
+                }
+            };
+
+            const fetchSubjects = async () => {
+                try {
+                    const data = await fetch('/api/subjects').then(async res => {
+                        if (!res.ok) {
+                            const errText = await res.text();
+                            throw new Error(`Erreur ${res.status} lors du chargement des matières: ${errText}`);
+                        }
+                        return res.json();
+                    });
+                    setSubjects(data);
+                } catch (err) {
+                    console.error('Erreur lors du chargement des matières:', err);
+                    setError('Erreur lors du chargement des matières: ' + err.message);
+                }
+            };
+
+            const fetchRemainingVolumes = async () => {
+                try {
+                    const response = await fetch('/api/group-subject-volumes');
+                    if (response.ok) {
+                        const data = await response.json();
+                        setSubjects(prev => prev.map(subject => ({
+                            ...subject,
+                            remainingVolume: data[subject.name] || subject.hourlyVolume
+                        })));
+                    }
+                } catch (err) {
+                    console.error('Erreur lors du chargement des volumes restants:', err);
+                }
+            };
+
+            const openModal = (action, constraint = null) => {
+                setModalAction(action);
+                setCurrentConstraint(constraint);
+                setShowModal(true);
+                setError('');
+                if (action === 'edit' && constraint) {
+                    setNewConstraint({ ...constraint });
+                } else {
+                    setNewConstraint({
+                        teacher: '',
+                        group: '',
+                        day: '',
+                        time: '',
+                        type: '',
+                        subject: ''
+                    });
+                }
+            };
+
+            const closeModal = () => {
+                if (Object.values(newConstraint).some(val => val) && !window.confirm('Voulez-vous abandonner les modifications non enregistrées ?')) {
+                    return;
+                }
+                setShowModal(false);
+                setModalAction('add');
+                setCurrentConstraint(null);
+                setNewConstraint({
+                    teacher: '',
+                    group: '',
+                    day: '',
+                    time: '',
+                    type: '',
+                    subject: ''
+                });
+                setError('');
+            };
+
+            const openSubjectModal = (action, subject = null) => {
+                setModalAction(action);
+                setCurrentSubject(subject);
+                setShowSubjectModal(true);
+                setError('');
+                if (action === 'edit' && subject) {
+                    setNewSubject({ ...subject });
+                } else {
+                    setNewSubject({
+                        name: '',
+                        hourlyVolume: '',
+                        remainingVolume: ''
+                    });
+                }
+            };
+
+            const closeSubjectModal = () => {
+                if (Object.values(newSubject).some(val => val) && !window.confirm('Voulez-vous abandonner les modifications non enregistrées ?')) {
+                    return;
+                }
+                setShowSubjectModal(false);
+                setModalAction('add');
+                setCurrentSubject(null);
+                setNewSubject({
+                    name: '',
+                    hourlyVolume: '',
+                    remainingVolume: ''
+                });
+                setError('');
+            };
+
+            const openDeleteModal = (constraint) => {
+                setCurrentConstraint(constraint);
+                setShowDeleteModal(true);
+                setError('');
+            };
+
+            const closeDeleteModal = () => {
+                setShowDeleteModal(false);
+                setCurrentConstraint(null);
+                setError('');
+            };
+
+            const openDeleteSubjectModal = (subject) => {
+                setCurrentSubject(subject);
+                setShowDeleteSubjectModal(true);
+                setError('');
+            };
+
+            const closeDeleteSubjectModal = () => {
+                setShowDeleteSubjectModal(false);
+                setCurrentSubject(null);
+                setError('');
+            };
+
+            const handleInputChange = (e) => {
+                const { name, value } = e.target;
+                if (name === 'teacher') {
+                    const selectedTeacher = teachers.find(t => (t.email || t.name || t.id) === value);
+                    setNewConstraint(prev => ({
+                        ...prev,
+                        [name]: value,
+                        subject: selectedTeacher ? selectedTeacher.subjects : ''
+                    }));
+                } else {
+                    setNewConstraint(prev => ({ ...prev, [name]: value }));
+                }
+                setError('');
+            };
+
+            const handleSubjectInputChange = (e) => {
+                const { name, value } = e.target;
+                setNewSubject(prev => ({ ...prev, [name]: value }));
+                setError('');
+            };
+
+            const saveConstraint = async (e) => {
+                e.preventDefault();
+                try {
+                    if (!newConstraint.teacher) throw new Error('Enseignant requis');
+                    if (!newConstraint.group) throw new Error('Groupe requis');
+                    if (!newConstraint.day) throw new Error('Jour requis');
+                    if (!newConstraint.time) throw new Error('Heure requise');
+                    if (!newConstraint.type) throw new Error('Type requis');
+                    if (!newConstraint.subject) throw new Error('Matière requise');
+
+                    const endpoint = modalAction === 'edit' ? `/api/constraints/${currentConstraint.id}` : '/api/constraints';
+                    const method = modalAction === 'edit' ? 'PUT' : 'POST';
+                    const response = await fetch(endpoint, {
+                        method,
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(newConstraint)
+                    });
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || `Erreur ${response.status} lors de l'enregistrement`);
+                    }
+                    const updatedData = await response.json();
+                    if (modalAction === 'edit') {
+                        setConstraints(constraints.map(c => c.id === currentConstraint.id ? updatedData : c));
+                    } else {
+                        setConstraints([...constraints, updatedData]);
+                    }
+                    closeModal();
+                } catch (err) {
+                    console.error('Erreur lors de l\'enregistrement:', err);
+                    setError('Erreur lors de l\'enregistrement: ' + err.message);
+                }
+            };
+
+            const saveSubject = async (e) => {
+                e.preventDefault();
+                try {
+                    if (!newSubject.name) throw new Error('Nom de la matière requis');
+                    if (!newSubject.hourlyVolume || isNaN(newSubject.hourlyVolume) || newSubject.hourlyVolume <= 0) {
+                        throw new Error('Volume horaire doit être un nombre positif');
+                    }
+
+                    const endpoint = modalAction === 'edit' ? `/api/subjects/${currentSubject.id}` : '/api/subjects';
+                    const method = modalAction === 'edit' ? 'PUT' : 'POST';
+                    const response = await fetch(endpoint, {
+                        method,
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ ...newSubject, remainingVolume: newSubject.hourlyVolume })
+                    });
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || `Erreur ${response.status} lors de l'enregistrement`);
+                    }
+                    const updatedData = await response.json();
+                    if (modalAction === 'edit') {
+                        setSubjects(subjects.map(s => s.id === currentSubject.id ? updatedData : s));
+                    } else {
+                        setSubjects([...subjects, updatedData]);
+                    }
+                    closeSubjectModal();
+                } catch (err) {
+                    console.error('Erreur lors de l\'enregistrement de la matière:', err);
+                    setError('Erreur lors de l\'enregistrement: ' + err.message);
+                }
+            };
+
+            const deleteConstraint = async (id) => {
+                setIsDeleting(prev => ({ ...prev, [id]: true }));
+                const prevConstraints = [...constraints];
+                setConstraints(constraints.filter(c => c.id !== id));
+                try {
+                    const response = await fetch(`/api/constraints/${id}`, {
+                        method: 'DELETE'
+                    });
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || `Erreur ${response.status} lors de la suppression`);
+                    }
+                    closeDeleteModal();
+                } catch (err) {
+                    console.error('Erreur lors de la suppression:', err);
+                    setError('Erreur lors de la suppression: ' + err.message);
+                    setConstraints(prevConstraints);
+                } finally {
+                    setIsDeleting(prev => ({ ...prev, [id]: false }));
+                }
+            };
+
+            const deleteSubject = async (id) => {
+                setIsDeleting(prev => ({ ...prev, [id]: true }));
+                const prevSubjects = [...subjects];
+                setSubjects(subjects.filter(s => s.id !== id));
+                try {
+                    const response = await fetch(`/api/subjects/${id}`, {
+                        method: 'DELETE'
+                    });
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || `Erreur ${response.status} lors de la suppression`);
+                    }
+                    closeDeleteSubjectModal();
+                } catch (err) {
+                    console.error('Erreur lors de la suppression de la matière:', err);
+                    setError('Erreur lors de la suppression: ' + err.message);
+                    setSubjects(prevSubjects);
+                } finally {
+                    setIsDeleting(prev => ({ ...prev, [id]: false }));
+                }
+            };
+
+            const generateTimetable = async () => {
+                if (!timetableDate) {
+                    setError('Veuillez sélectionner une date pour générer l\'emploi du temps');
+                    return;
+                }
+                setIsGenerating(true);
+                try {
+                    const response = await fetch('/api/generate-timetable', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ date: timetableDate })
+                    });
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || `Erreur ${response.status} lors de la génération`);
+                    }
+                    await fetchRemainingVolumes();
+                    setError('');
+                    alert('Emploi du temps généré avec succès !');
+                } catch (err) {
+                    console.error('Erreur lors de la génération de l\'emploi du temps:', err);
+                    setError('Erreur lors de la génération: ' + err.message);
+                } finally {
+                    setIsGenerating(false);
+                }
+            };
+
+            const handleClick = (e) => {
+                e.target.classList.add('button-click');
+                setTimeout(() => e.target.classList.remove('button-click'), 300);
+            };
+
+            const getTeacherDisplay = (teacher) => {
+                if (!teacher) return '';
+                return teacher.name || teacher.email || teacher.id || 'Inconnu';
+            };
+
+            return (
+                <div className="flex flex-col min-h-screen w-full">
+                    <header className="bg-blue-800 text-white p-5 flex justify-between items-center">
+                        <div className="flex items-center gap-4">
+                            <button
+                                className="gradient-blue-button text-white px-6 py-3 rounded-lg hover-effect focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                onClick={() => window.location.href = 'dashboard.html'}
+                                onMouseDown={handleClick}
+                            >
+                                ← Retour au Tableau de Bord
+                            </button>
+                            <h1 className="text-2xl font-bold">Gestion des Contraintes et Matières</h1>
+                        </div>
+                    </header>
+                    <main className="flex-1 p-8 w-full fade-in">
+                        <div className="card mb-8">
+                            <h2 className="text-3xl font-bold text-gray-800 mb-6">Générer un Emploi du Temps 📅</h2>
+                            <div className="flex items-center gap-4">
+                                <input
+                                    type="date"
+                                    className="input-field w-1/3"
+                                    value={timetableDate}
+                                    onChange={(e) => setTimetableDate(e.target.value)}
+                                    required
+                                />
+                                <button
+                                    className="gradient-button text-white px-6 py-3 rounded-lg hover-effect flex items-center gap-2"
+                                    onClick={generateTimetable}
+                                    onMouseDown={handleClick}
+                                    disabled={isGenerating}
+                                >
+                                    {isGenerating ? (
+                                        <span className="spinner"></span>
+                                    ) : (
+                                        <>
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
+                                            </svg>
+                                            Générer
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                            {error && <p className="error-message mt-4">{error}</p>}
+                        </div>
+                        <div className="card">
+                            <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+                                Matières 📚
+                                <span className="ml-2 text-green-600">{subjects.length} total</span>
+                            </h2>
+                            {error && <p className="error-message mb-4">{error}</p>}
+                            <div className="flex justify-center mb-8">
+                                <button
+                                    className="gradient-button text-white px-8 py-4 rounded-xl text-lg font-semibold hover-effect focus:outline-none focus:ring-2 focus:ring-green-500 flex items-center gap-2"
+                                    onClick={() => openSubjectModal('add')}
+                                    onMouseDown={handleClick}
+                                >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
+                                    </svg>
+                                    Ajouter une Matière
+                                </button>
+                            </div>
+                            <div className="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Nom</th>
+                                            <th>Volume Horaire Initial</th>
+                                            <th>Volume Horaire Restant</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {subjects.length > 0 ? (
+                                            subjects.map(s => (
+                                                <tr key={s.id}>
+                                                    <td>{s.name}</td>
+                                                    <td>{s.hourlyVolume} heures</td>
+                                                    <td>{s.remainingVolume !== undefined ? `${s.remainingVolume} heures` : 'Non défini'}</td>
+                                                    <td className="flex gap-2">
+                                                        <button
+                                                            className="gradient-orange-button text-white action-button hover-effect"
+                                                            onClick={() => openSubjectModal('edit', s)}
+                                                            onMouseDown={handleClick}
+                                                            disabled={isDeleting[s.id]}
+                                                        >
+                                                            Modifier
+                                                        </button>
+                                                        <button
+                                                            className="bg-red-500 text-white action-button hover:bg-red-600 hover-effect flex items-center gap-2"
+                                                            onClick={() => openDeleteSubjectModal(s)}
+                                                            onMouseDown={handleClick}
+                                                            disabled={isDeleting[s.id]}
+                                                        >
+                                                            {isDeleting[s.id] ? (
+                                                                <span className="spinner"></span>
+                                                            ) : (
+                                                                'Supprimer'
+                                                            )}
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan="4" className="p-6 text-center text-gray-500">
+                                                    Aucune matière disponible
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div className="card">
+                            <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+                                Contraintes ⚖️
+                                <span className="ml-2 text-green-600">{constraints.length} total</span>
+                            </h2>
+                            <div className="flex justify-center mb-8">
+                                <button
+                                    className="gradient-button text-white px-8 py-4 rounded-xl text-lg font-semibold hover-effect focus:outline-none focus:ring-2 focus:ring-green-500 flex items-center gap-2"
+                                    onClick={() => openModal('add')}
+                                    onMouseDown={handleClick}
+                                >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
+                                    </svg>
+                                    Ajouter une Contrainte
+                                </button>
+                            </div>
+                            <div className="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Enseignant</th>
+                                            <th>Groupe</th>
+                                            <th>Jour</th>
+                                            <th>Heure</th>
+                                            <th>Type</th>
+                                            <th>Matière</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {constraints.length > 0 ? (
+                                            constraints.map(c => (
+                                                <tr key={c.id}>
+                                                    <td>{c.teacher}</td>
+                                                    <td>{c.group}</td>
+                                                    <td>{c.day}</td>
+                                                    <td>{c.time}</td>
+                                                    <td>
+                                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${c.type === 'Indisponible' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+                                                            {c.type}
+                                                        </span>
+                                                    </td>
+                                                    <td>{c.subject || '-'}</td>
+                                                    <td className="flex gap-2">
+                                                        <button
+                                                            className="gradient-orange-button text-white action-button hover-effect"
+                                                            onClick={() => openModal('edit', c)}
+                                                            onMouseDown={handleClick}
+                                                            disabled={isDeleting[c.id]}
+                                                        >
+                                                            Modifier
+                                                        </button>
+                                                        <button
+                                                            className="bg-red-500 text-white action-button hover:bg-red-600 hover-effect flex items-center gap-2"
+                                                            onClick={() => openDeleteModal(c)}
+                                                            onMouseDown={handleClick}
+                                                            disabled={isDeleting[c.id]}
+                                                        >
+                                                            {isDeleting[c.id] ? (
+                                                                <span className="spinner"></span>
+                                                            ) : (
+                                                                'Supprimer'
+                                                            )}
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan="7" className="p-6 text-center text-gray-500">
+                                                    Aucune contrainte disponible
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        {showModal && (
+                            <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+                                <div className="modal">
+                                    <h3 className="text-xl font-bold text-gray-800 mb-6">{modalAction === 'edit' ? 'Modifier la Contrainte' : 'Ajouter une Contrainte'}</h3>
+                                    <form onSubmit={saveConstraint}>
+                                        <select
+                                            name="teacher"
+                                            className="input-field mb-4"
+                                            value={newConstraint.teacher}
+                                            onChange={handleInputChange}
+                                            required
+                                        >
+                                            <option value="">Sélectionner un enseignant</option>
+                                            {teachers.length > 0 ? (
+                                                teachers.map(t => (
+                                                    <option key={t.id} value={t.email || t.name || t.id}>
+                                                        {getTeacherDisplay(t)}
+                                                    </option>
+                                                ))
+                                            ) : (
+                                                <option value="" disabled>Aucun enseignant disponible</option>
+                                            )}
+                                        </select>
+                                        <select
+                                            name="group"
+                                            className="input-field mb-4"
+                                            value={newConstraint.group}
+                                            onChange={handleInputChange}
+                                            required
+                                        >
+                                            <option value="">Sélectionner un groupe</option>
+                                            {groups.map(g => (
+                                                <option key={g.id} value={g.name}>{g.name}</option>
+                                            ))}
+                                        </select>
+                                        <select
+                                            name="day"
+                                            className="input-field mb-4"
+                                            value={newConstraint.day}
+                                            onChange={handleInputChange}
+                                            required
+                                        >
+                                            <option value="">Jour</option>
+                                            <option value="Lundi">Lundi</option>
+                                            <option value="Mardi">Mardi</option>
+                                            <option value="Mercredi">Mercredi</option>
+                                            <option value="Jeudi">Jeudi</option>
+                                            <option value="Vendredi">Vendredi</option>
+                                        </select>
+                                        <input
+                                            type="time"
+                                            name="time"
+                                            className="input-field mb-4"
+                                            value={newConstraint.time}
+                                            onChange={handleInputChange}
+                                            required
+                                        />
+                                        <select
+                                            name="type"
+                                            className="input-field mb-4"
+                                            value={newConstraint.type}
+                                            onChange={handleInputChange}
+                                            required
+                                        >
+                                            <option value="">Type</option>
+                                            <option value="Indisponible">Indisponible</option>
+                                            <option value="Préférence">Préférence</option>
+                                        </select>
+                                        <input
+                                            type="text"
+                                            name="subject"
+                                            className="input-field mb-4"
+                                            value={newConstraint.subject}
+                                            readOnly
+                                        />
+                                        {error && <p className="error-message">{error}</p>}
+                                        <div className="flex justify-end gap-3">
+                                            <button
+                                                type="button"
+                                                className="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 hover-effect"
+                                                onClick={closeModal}
+                                                onMouseDown={handleClick}
+                                            >
+                                                Annuler
+                                            </button>
+                                            <button
+                                                type="submit"
+                                                className="gradient-button text-white px-6 py-2 rounded-lg hover-effect"
+                                                onMouseDown={handleClick}
+                                            >
+                                                {modalAction === 'edit' ? 'Modifier' : 'Ajouter'}
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        )}
+                        {showSubjectModal && (
+                            <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+                                <div className="modal">
+                                    <h3 className="text-xl font-bold text-gray-800 mb-6">{modalAction === 'edit' ? 'Modifier la Matière' : 'Ajouter une Matière'}</h3>
+                                    <form onSubmit={saveSubject}>
+                                        <input
+                                            type="text"
+                                            name="name"
+                                            className="input-field mb-4"
+                                            value={newSubject.name}
+                                            onChange={handleSubjectInputChange}
+                                            placeholder="Nom de la matière"
+                                            required
+                                        />
+                                        <input
+                                            type="number"
+                                            name="hourlyVolume"
+                                            className="input-field mb-6"
+                                            value={newSubject.hourlyVolume}
+                                            onChange={handleSubjectInputChange}
+                                            placeholder="Volume horaire (heures)"
+                                            min="1"
+                                            required
+                                        />
+                                        {error && <p className="error-message">{error}</p>}
+                                        <div className="flex justify-end gap-3">
+                                            <button
+                                                type="button"
+                                                className="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 hover-effect"
+                                                onClick={closeSubjectModal}
+                                                onMouseDown={handleClick}
+                                            >
+                                                Annuler
+                                            </button>
+                                            <button
+                                                type="submit"
+                                                className="gradient-button text-white px-6 py-2 rounded-lg hover-effect"
+                                                onMouseDown={handleClick}
+                                            >
+                                                {modalAction === 'edit' ? 'Modifier' : 'Ajouter'}
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        )}
+                        {showDeleteModal && (
+                            <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+                                <div className="modal">
+                                    <h3 className="text-xl font-bold text-gray-800 mb-6">Confirmer la Suppression</h3>
+                                    <p className="text-gray-600 mb-6">
+                                        Voulez-vous vraiment supprimer la contrainte pour {currentConstraint?.teacher} ({currentConstraint?.subject}) le {currentConstraint?.day} à {currentConstraint?.time} ?
+                                    </p>
+                                    {error && <p className="error-message mb-4">{error}</p>}
+                                    <div className="flex justify-end gap-3">
+                                        <button
+                                            className="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 hover-effect"
+                                            onClick={closeDeleteModal}
+                                            onMouseDown={handleClick}
+                                            disabled={isDeleting[currentConstraint?.id]}
+                                        >
+                                            Annuler
+                                        </button>
+                                        <button
+                                            className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 hover-effect flex items-center gap-2"
+                                            onClick={() => deleteConstraint(currentConstraint.id)}
+                                            onMouseDown={handleClick}
+                                            disabled={isDeleting[currentConstraint?.id]}
+                                        >
+                                            {isDeleting[currentConstraint?.id] ? (
+                                                <span className="spinner"></span>
+                                            ) : (
+                                                'Supprimer'
+                                            )}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                        {showDeleteSubjectModal && (
+                            <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+                                <div className="modal">
+                                    <h3 className="text-xl font-bold text-gray-800 mb-6">Confirmer la Suppression</h3>
+                                    <p className="text-gray-600 mb-6">
+                                        Voulez-vous vraiment supprimer la matière {currentSubject?.name} ?
+                                    </p>
+                                    {error && <p className="error-message mb-4">{error}</p>}
+                                    <div className="flex justify-end gap-3">
+                                        <button
+                                            className="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 hover-effect"
+                                            onClick={closeDeleteSubjectModal}
+                                            onMouseDown={handleClick}
+                                            disabled={isDeleting[currentSubject?.id]}
+                                        >
+                                            Annuler
+                                        </button>
+                                        <button
+                                            className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 hover-effect flex items-center gap-2"
+                                            onClick={() => deleteSubject(currentSubject.id)}
+                                            onMouseDown={handleClick}
+                                            disabled={isDeleting[currentSubject?.id]}
+                                        >
+                                            {isDeleting[currentSubject?.id] ? (
+                                                <span className="spinner"></span>
+                                            ) : (
+                                                'Supprimer'
+                                            )}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </main>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<ConstraintsPage />, document.getElementById('root'));
+
+        document.getElementById('loadingOverlay').addEventListener('animationend', () => {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        });
+    </script>
+</body>
+</html>

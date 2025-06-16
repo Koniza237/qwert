@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Tableau de bord enseignant pour Fareno University">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="shortcut icon" href="FARENOUNIVERSITY.jpg" type="image/x-icon">
+    <title>Tableau de Bord Enseignant - Fareno University</title>
+    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.24.7/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7fa;
+        }
+
+        #background-image {
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            background-size: 200% 200%;
+            animation: gradientShift 20s ease-in-out infinite;
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            opacity: 0.9;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        #root {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            background-color: rgba(255, 255, 255, 0.95);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        .bounce {
+            animation: bounce 2s infinite;
+        }
+
+        .pulse {
+            animation: pulse 2.5s infinite;
+        }
+
+        .button-click {
+            animation: clickEffect 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes clickEffect {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.97); }
+            100% { transform: scale(1); }
+        }
+
+        .hover-effect {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .hover-effect:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .message-bubble {
+            max-width: 80%;
+            padding: 12px 18px;
+            margin: 8px 12px;
+            border-radius: 20px;
+            word-wrap: break-word;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-message {
+            background: linear-gradient(45deg, #7c3aed, #a78bfa);
+            color: white;
+            align-self: flex-end;
+        }
+
+        .ai-message {
+            background-color: #e5e7eb;
+            color: #1f2937;
+            align-self: flex-start;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .typing-dot {
+            width: 10px;
+            height: 10px;
+            background-color: #6b7280;
+            border-radius: 50%;
+            margin: 0 5px;
+            animation: typing 1.2s infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.3s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.6s; }
+
+        @keyframes typing {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        .full-height {
+            min-height: calc(100vh - 5rem);
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-size: 0.9rem;
+            margin-top: 0.75rem;
+            font-weight: 500;
+        }
+
+        .success-message {
+            color: #15803d;
+            font-size: 0.9rem;
+            margin-top: 0.75rem;
+            font-weight: 500;
+        }
+
+        .gradient-button {
+            background: linear-gradient(45deg, #7c3aed, #a78bfa);
+            transition: background 0.3s ease;
+        }
+
+        .gradient-button:hover {
+            background: linear-gradient(45deg, #6d28d9, #8b5cf6);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeOut 1s ease-in-out forwards;
+            animation-delay: 0.7s;
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; display: none; }
+        }
+
+        .profile-photo {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid #e5e7eb;
+        }
+
+        .photo-placeholder {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: #d1d5db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            font-size: 1rem;
+            cursor: pointer;
+            border: 2px solid #e5e7eb;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .table-container table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table-container th,
+        .table-container td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .table-container th {
+            background: linear-gradient(45deg, #7c3aed, #a78bfa);
+            color: white;
+            font-weight: 600;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #1e3a8a, #2563eb);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .sidebar button {
+            font-weight: 500;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar button:hover {
+            transform: scale(1.02);
+            background-color: #3b82f6;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: #ffffff33;
+            transform: translateY(-50%);
+            transition: width 0.3s ease;
+        }
+
+        .sidebar button:hover::after {
+            width: 100%;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        .logo-placeholder {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background-color: #ffffff33;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        header {
+            background: linear-gradient(90deg, #1e3a8a, #2563eb);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .notification-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #dc2626;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex">
+    <div id="background-image"></div>
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="text-3xl font-semibold text-gray-800 animate-spin">🎓</div>
+    </div>
+    <div id="root" class="w-full"></div>
+    <div class="absolute top-4 left-4 text-white text-xl bounce" aria-hidden="true">👩‍🏫</div>
+    <div class="fixed bottom-4 right-4 bg-gray-900 text-white text-sm rounded-lg px-4 py-2 shadow-lg">
+        <span id="datetime" aria-live="polite"></span>
+    </div>
+
+    <script type="text/babel">
+        function TeacherDashboard() {
+            const [activeSection, setActiveSection] = React.useState('messagerie');
+            const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+            const [messages, setMessages] = React.useState([]);
+            const [documents, setDocuments] = React.useState([]);
+            const [constraints, setConstraints] = React.useState([]);
+            const [courses, setCourses] = React.useState([]);
+            const [timetable, setTimetable] = React.useState(null);
+            const [timetableDocuments, setTimetableDocuments] = React.useState([]);
+            const [aiInput, setAiInput] = React.useState('');
+            const [aiMessages, setAiMessages] = React.useState([]);
+            const [aiError, setAiError] = React.useState('');
+            const [aiLoading, setAiLoading] = React.useState(false);
+            const [timeSpent, setTimeSpent] = React.useState(0);
+            const [isOnline, setIsOnline] = React.useState(navigator.onLine);
+            const [user, setUser] = React.useState(null);
+            const [profilePhoto, setProfilePhoto] = React.useState(null);
+            const [settingsError, setSettingsError] = React.useState('');
+            const [settingsSuccess, setSettingsSuccess] = React.useState('');
+            const [emailInput, setEmailInput] = React.useState('');
+            const [passwordInput, setPasswordInput] = React.useState('');
+            const [phoneNumberInput, setPhoneNumberInput] = React.useState('');
+
+            React.useEffect(() => {
+                const startTime = Date.now();
+                const timer = setInterval(() => {
+                    setTimeSpent(Math.floor((Date.now() - startTime) / 1000));
+                }, 1000);
+
+                const updateDateTime = () => {
+                    const now = new Date();
+                    const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                    const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Africa/Lagos' };
+                    const date = now.toLocaleDateString('fr-FR', optionsDate);
+                    const time = now.toLocaleTimeString('fr-FR', optionsTime);
+                    const datetimeElement = document.getElementById('datetime');
+                    if (datetimeElement) {
+                        datetimeElement.textContent = `${time} WAT, ${date}`;
+                    }
+                };
+                updateDateTime();
+                const dateTimeTimer = setInterval(updateDateTime, 1000);
+
+                try {
+                    const savedUser = localStorage.getItem('connectteacher');
+                    if (savedUser) {
+                        const parsedUser = JSON.parse(savedUser);
+                        setUser({ id: parsedUser.id, name: parsedUser.name, email: parsedUser.email || 'Enseignant' });
+                        setEmailInput(parsedUser.email || '');
+                    }
+                } catch (e) {
+                    console.error('Erreur lors du parsing de connectteacher:', e);
+                    setUser({ email: 'Enseignant' });
+                }
+
+                try {
+                    const savedPhoto = localStorage.getItem('teacherProfilePhoto');
+                    if (savedPhoto) {
+                        setProfilePhoto(savedPhoto);
+                    }
+                } catch (e) {
+                    console.error('Erreur lors du parsing de teacherProfilePhoto:', e);
+                }
+
+                fetchMessages();
+                fetchDocuments();
+                fetchConstraints();
+                fetchCourses();
+                fetchTimetable();
+                fetchTimetableDocuments();
+
+                // Use React state to track online status and avoid direct event listeners
+                const handleOnlineStatus = () => {
+                    setIsOnline(navigator.onLine);
+                };
+                window.addEventListener('online', handleOnlineStatus);
+                window.addEventListener('offline', handleOnlineStatus);
+
+                return () => {
+                    clearInterval(timer);
+                    clearInterval(dateTimeTimer);
+                    window.removeEventListener('online', handleOnlineStatus);
+                    window.removeEventListener('offline', handleOnlineStatus);
+                };
+            }, []);
+
+            const formatTime = (seconds) => {
+                const hrs = Math.floor(seconds / 3600);
+                const mins = Math.floor((seconds % 3600) / 60);
+                const secs = seconds % 60;
+                return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            };
+
+            const fetchMessages = async () => {
+                try {
+                    const response = await fetch('/api/messages-ens');
+                    if (!response.ok) throw new Error('Erreur lors du chargement des messages');
+                    const data = await response.json();
+                    const formattedMessages = data.map((msg, index) => ({
+                        ...msg,
+                        id: index,
+                        timestamp: msg.timestamp || new Date().toISOString(),
+                        read: msg.read || false
+                    }));
+                    setMessages(formattedMessages);
+                } catch (err) {
+                    console.error('Erreur lors du chargement des messages:', err);
+                }
+            };
+
+            const fetchDocuments = async () => {
+                try {
+                    const response = await fetch('/api/documents');
+                    if (!response.ok) throw new Error('Erreur lors du chargement des documents');
+                    const data = await response.json();
+                    setDocuments(data.documents || []);
+                } catch (err) {
+                    console.error('Erreur lors du chargement des documents:', err);
+                }
+            };
+
+            const fetchConstraints = async () => {
+                try {
+                    const response = await fetch('/api/constraints');
+                    if (!response.ok) throw new Error('Erreur lors du chargement des contraintes');
+                    const data = await response.json();
+                    setConstraints(data.data || []);
+                } catch (err) {
+                    console.error('Erreur lors du chargement des contraintes:', err);
+                }
+            };
+
+            const fetchCourses = async () => {
+                try {
+                    const response = await fetch('/api/courses');
+                    if (!response.ok) throw new Error('Erreur lors du chargement des cours');
+                    const data = await response.json();
+                    setCourses(data.courses || []);
+                } catch (err) {
+                    console.error('Erreur lors du chargement des cours:', err);
+                }
+            };
+
+            const fetchTimetable = async () => {
+                try {
+                    if (!user?.name) return;
+                    const response = await fetch(`/api/teacher-timetable/${encodeURIComponent(user.name)}`);
+                    if (!response.ok) throw new Error('Erreur lors du chargement de l\'emploi du temps');
+                    const data = await response.json();
+                    setTimetable(data.timetable || null);
+                } catch (err) {
+                    console.error('Erreur lors du chargement de l\'emploi du temps:', err);
+                }
+            };
+
+            const fetchTimetableDocuments = async () => {
+                try {
+                    const response = await fetch('/api/timetable-documents');
+                    if (!response.ok) throw new Error('Erreur lors du chargement des documents d\'emploi du temps');
+                    const data = await response.json();
+                    setTimetableDocuments(data.documents || []);
+                } catch (err) {
+                    console.error('Erreur lors du chargement des documents d\'emploi du temps:', err);
+                }
+            };
+
+            const handleDownload = async (documentId, documentName) => {
+                try {
+                    const response = await fetch(`/api/timetable-documents/${documentId}/download`);
+                    if (!response.ok) throw new Error('Erreur lors du téléchargement');
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = documentName;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+                } catch (err) {
+                    console.error('Erreur lors du téléchargement:', err);
+                    alert('Erreur lors du téléchargement: ' + err.message);
+                }
+            };
+
+            const handleCourseUpload = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                try {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('uploadedBy', user?.name || 'Enseignant');
+                    const response = await fetch('/api/courses/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    if (!response.ok) throw new Error('Erreur lors de l\'upload du cours');
+                    const newCourse = await response.json();
+                    setCourses([...courses, newCourse.course]);
+                    alert('Cours uploadé avec succès');
+                } catch (err) {
+                    console.error('Erreur lors de l\'upload du cours:', err);
+                    alert('Erreur lors de l\'upload: ' + err.message);
+                }
+            };
+
+            const handleTimetableDocumentUpload = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                try {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('uploadedBy', user?.name || 'Enseignant');
+                    const response = await fetch('/api/timetable-documents/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    if (!response.ok) throw new Error('Erreur lors de l\'upload du document');
+                    const newDocument = await response.json();
+                    setTimetableDocuments([...timetableDocuments, newDocument.document]);
+                    alert('Document uploadé avec succès');
+                } catch (err) {
+                    console.error('Erreur lors de l\'upload du document:', err);
+                    alert('Erreur lors de l\'upload: ' + err.message);
+                }
+            };
+
+            const handleCourseDelete = async (courseId) => {
+                if (!window.confirm('Voulez-vous vraiment supprimer ce cours ?')) return;
+                try {
+                    const response = await fetch(`/api/courses/${courseId}`, {
+                        method: 'DELETE'
+                    });
+                    if (!response.ok) throw new Error('Erreur lors de la suppression du cours');
+                    setCourses(courses.filter(course => course.id !== courseId));
+                    alert('Cours supprimé avec succès');
+                } catch (err) {
+                    console.error('Erreur lors de la suppression du cours:', err);
+                    alert('Erreur lors de la suppression: ' + err.message);
+                }
+            };
+
+            const handleAiSubmit = async (e) => {
+                e.preventDefault();
+                if (!aiInput.trim()) {
+                    setAiError('Veuillez entrer une question.');
+                    return;
+                }
+                if (!isOnline) {
+                    setAiError('L\'IA ne peut pas répondre car vous êtes hors ligne.');
+                    return;
+                }
+                const newMessage = { id: Date.now(), content: aiInput, type: 'user', timestamp: new Date().toISOString() };
+                setAiMessages([...aiMessages, newMessage]);
+                setAiInput('');
+                setAiLoading(true);
+                try {
+                    const response = await fetch('/api/ai', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ prompt: aiInput })
+                    });
+                    if (!response.ok) throw new Error('Erreur API');
+                    const data = await response.json();
+                    const aiMessage = { id: Date.now() + 1, content: data.response, type: 'ai', timestamp: new Date().toISOString() };
+                    setAiMessages(prev => [...prev, aiMessage]);
+                    setAiError('');
+                } catch (error) {
+                    setAiError('Erreur: ' + error.message);
+                } finally {
+                    setAiLoading(false);
+                }
+            };
+
+            const handleAiSuggestion = (suggestion) => {
+                setAiInput(suggestion);
+            };
+
+            const clearConversation = () => {
+                if (window.confirm('Voulez-vous effacer la conversation ?')) {
+                    setAiMessages([]);
+                    setAiError('');
+                }
+            };
+
+            const handlePhotoUpload = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                if (!file.type.startsWith('image/')) {
+                    alert('Veuillez sélectionner une image valide.');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const imageData = reader.result;
+                    setProfilePhoto(imageData);
+                    localStorage.setItem('teacherProfilePhoto', imageData);
+                };
+                reader.onerror = () => {
+                    alert('Erreur lors du chargement de l\'image.');
+                };
+                reader.readAsDataURL(file);
+            };
+
+            const handleSettingsSubmit = async (e) => {
+                e.preventDefault();
+                setSettingsError('');
+                setSettingsSuccess('');
+
+                if (!emailInput && !passwordInput) {
+                    setSettingsError('Veuillez fournir un email ou un mot de passe.');
+                    return;
+                }
+
+                try {
+                    if (emailInput && emailInput !== user.email) {
+                        const response = await fetch(`/api/users/teachers/${user.id}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email: emailInput })
+                        });
+                        if (!response.ok) throw new Error('Erreur lors de la mise à jour de l\'email');
+                        const data = await response.json();
+                        setUser({ ...user, email: data.user.email });
+                        localStorage.setItem('connectteacher', JSON.stringify({ ...JSON.parse(localStorage.getItem('connectteacher')), email: data.user.email }));
+                        setSettingsSuccess('Email mis à jour avec succès.');
+                    }
+
+                    if (passwordInput) {
+                        const response = await fetch('/api/reset-password', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                phoneNumber: phoneNumberInput || 'N/A',
+                                email: user.email,
+                                password: passwordInput
+                            })
+                        });
+                        if (!response.ok) throw new Error('Erreur lors de la mise à jour du mot de passe');
+                        setSettingsSuccess(prev => prev + ' Mot de passe mis à jour avec succès.');
+                        setPasswordInput('');
+                        setPhoneNumberInput('');
+                    }
+                } catch (err) {
+                    console.error('Erreur lors de la mise à jour des paramètres:', err);
+                    setSettingsError('Erreur: ' + err.message);
+                }
+            };
+
+            const handleExportTimetable = async () => {
+                if (!timetable) return;
+                try {
+                    const response = await fetch('/api/export-pdf', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            type: 'teacher',
+                            timetables: timetable,
+                            teacher: user.name,
+                            date: new Date().toISOString().split('T')[0]
+                        })
+                    });
+                    if (!response.ok) throw new Error('Erreur lors de l\'exportation');
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `teacher-timetable_${user.name}_${new Date().toISOString().split('T')[0]}.pdf`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+                } catch (err) {
+                    console.error('Erreur lors de l\'exportation:', err);
+                    alert('Erreur lors de l\'exportation: ' + err.message);
+                }
+            };
+
+            const handleLogout = () => {
+                if (window.confirm('Voulez-vous vraiment vous déconnecter ?')) {
+                    localStorage.removeItem('connectteacher');
+                    localStorage.removeItem('teacherProfilePhoto');
+                    window.location.href = 'choix.html';
+                }
+            };
+
+            const handleClick = (e) => {
+                e.target.classList.add('button-click');
+                setTimeout(() => e.target.classList.remove('button-click'), 300);
+            };
+
+            React.useEffect(() => {
+                if (activeSection === 'messagerie') {
+                    setMessages(prev => prev.map(msg => ({ ...msg, read: true })));
+                }
+            }, [activeSection]);
+
+            const unreadMessagesCount = messages.filter(msg => !msg.read).length;
+
+            const timeSlots = ['08:00-10:00', '10:00-12:00', '12:00-13:00', '13:00-15:00', '15:00-17:00'];
+            const days = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi'];
+
+            const sections = {
+                messagerie: (
+                    <div className="p-6 fade-in full-height">
+                        <div className="max-w-7xl mx-auto">
+                            <h2 className="text-2xl font-bold text-gray-800 mb-6">Messagerie 💬</h2>
+                            <div className="card">
+                                <div className="chat-area bg-gray-50 p-6 rounded-lg h-[calc(100vh-12rem)] overflow-y-auto">
+                                    {messages.length > 0 ? (
+                                        messages.map(msg => (
+                                            <div key={msg.id} className="message-bubble fade-in">
+                                                <div className="text-gray-800">{msg.content}</div>
+                                                <div className="text-xs text-gray-500 mt-2">
+                                                    Reçu le {new Date(msg.timestamp).toLocaleString('fr-FR')}
+                                                </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="text-center text-gray-500 mt-4">
+                                            Aucun message reçu.
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ),
+                documents: (
+                    <div className="p-6 fade-in full-height">
+                        <div className="max-w-7xl mx-auto">
+                            <h2 className="text-2xl font-bold text-gray-800 mb-6">Documents 📄</h2>
+                            <div className="card">
+                                <h3 className="text-xl font-semibold text-gray-800 mb-4">Liste des Documents</h3>
+                                <div className="table-container">
+                                    <table className="w-full">
+                                        <thead>
+                                            <tr>
+                                                <th className="p-4">Titre</th>
+                                                <th className="p-4">Catégorie</th>
+                                                <th className="p-4">Nom du Fichier</th>
+                                                <th className="p-4">Ajouté par</th>
+                                                <th className="p-4">Date d'Ajout</th>
+                                                <th className="p-4">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {documents.length > 0 ? (
+                                                documents.map(doc => (
+                                                    <tr key={doc.id} className="border-b hover:bg-gray-50">
+                                                        <td className="p-4">{doc.title}</td>
+                                                        <td className="p-4">{doc.category}</td>
+                                                        <td className="p-4">{doc.fileName}</td>
+                                                        <td className="p-4">{doc.uploadedBy}</td>
+                                                        <td className="p-4">{doc.uploadDate || 'N/A'}</td>
+                                                        <td className="p-4">
+                                                            <button
+                                                                className="gradient-button text-white px-4 py-2 rounded-lg hover-effect focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                                                onClick={() => handleDownload(doc.id, doc.fileName)}
+                                                                onMouseDown={handleClick}
+                                                                aria-label={`Télécharger ${doc.fileName}`}
+                                                            >
+                                                                Télécharger
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            ) : (
+                                                <tr>
+                                                    <td colSpan="6" className="p-4 text-center text-gray-500">
+                                                        Aucun document disponible
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ),
+                ia: (
+                    <div className="p-6 fade-in full-height">
+                        <div className="max-w-7xl mx-auto">
+                            <h2 className="text-2xl font-bold text-gray-800 mb-6">Assistant IA 🤖</h2>
+                            <div className="card">
+                                <div className="bg-gray-50 p-6 rounded-lg h-[calc(100vh-16rem)] overflow-y-auto mb-6 flex flex-col">
+                                    {aiMessages.length > 0 ? (
+                                        aiMessages.map((msg) => (
+                                            <div
+                                                key={msg.id}
+                                                className={`message-bubble fade-in ${msg.type === 'user' ? 'user-message' : 'ai-message'}`}
+                                            >
+                                                <div className="text-gray-800">{msg.content}</div>
+                                                <div className="text-xs text-gray-500 mt-2">
+                                                    {new Date(msg.timestamp).toLocaleString('fr-FR')}
+                                                </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="text-center text-gray-500 mt-4">
+                                            Commencez une conversation avec l'IA !
+                                        </div>
+                                    )}
+                                    {aiLoading && (
+                                        <div className="typing-indicator fade-in">
+                                            <div className="typing-dot"></div>
+                                            <div className="typing-dot"></div>
+                                            <div className="typing-dot"></div>
+                                        </div>
+                                    )}
+                                </div>
+                                {aiError && <p className="error-message mb-4">{aiError}</p>}
+                                <div className="flex flex-wrap gap-3 mb-6">
+                                    {['Comment planifier un cours ?', 'Quels outils pour enseigner en ligne ?', 'Conseils pour gérer les contraintes horaires'].map((suggestion) => (
+                                        <button
+                                            key={suggestion}
+                                            className="bg-gray-200 text-gray-800 px-4 py-2 rounded-full hover:bg-gray-300 hover-effect focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                            onClick={() => handleAiSuggestion(suggestion)}
+                                            onMouseDown={handleClick}
+                                            aria-label={`Poser la question: ${suggestion}`}
+                                        >
+                                            {suggestion}
+                                        </button>
+                                    ))}
+                                </div>
+                                <form onSubmit={handleAiSubmit} className="space-y-4">
+                                    <textarea
+                                        placeholder="Posez une question..."
+                                        className="border p-4 rounded-lg w-full h-28 bg-gray-50 text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                        value={aiInput}
+                                        onChange={(e) => setAiInput(e.target.value)}
+                                        aria-label="Question pour l'assistant IA"
+                                    ></textarea>
+                                    <div className="flex space-x-3">
+                                        <button
+                                            type="submit"
+                                            className="gradient-button text-white py-2 px-6 rounded-lg hover-effect pulse focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                            disabled={aiLoading}
+                                            onClick={handleClick}
+                                            aria-label="Envoyer la question"
+                                        >
+                                            {aiLoading ? 'Chargement... ⏳' : 'Envoyer'}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="bg-red-500 text-white py-2 px-6 rounded-lg hover:bg-red-600 hover-effect focus:outline-none focus:ring-2 focus:ring-red-500"
+                                            onClick={clearConversation}
+                                            onMouseDown={handleClick}
+                                            aria-label="Effacer la conversation"
+                                        >
+                                            Effacer
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                ),
+                contraintes: (
+                    <div className="p-6 fade-in full-height">
+                        <div className="max-w-7xl mx-auto">
+                            <h2 className="text-2xl font-bold text-gray-800 mb-6">Contraintes ⏰</h2>
+                            <div className="card">
+                                {constraints.length > 0 ? (
+                                    <ul className="text-gray-600 space-y-3">
+                                        {constraints.map((constraint, index) => (
+                                            <li key={index} className="border-b py-2">
+                                                {constraint.day} {constraint.time.length === 5 ? constraint.time + ':00' : constraint.time} : {constraint.type} ({constraint.resource})
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <p className="text-gray-500">Aucune contrainte chargée.</p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                ),
+                cours: (
+                    <div className="p-6 fade-in full-height">
+                        <div className="max-w-7xl mx-auto">
+                            <h2 className="text-2xl font-bold text-gray-800 mb-6">Cours 📚</h2>
+                            <div className="card">
+                                <h3 className="text-xl font-semibold text-gray-800 mb-4">Ajouter un Cours</h3>
+                                <input
+                                    type="file"
+                                    accept=".pdf,.doc,.docx"
+                                    onChange={handleCourseUpload}
+                                    className="mb-4 text-gray-600"
+                                    aria-label="Uploader un cours"
+                                />
+                                <h3 className="text-xl font-semibold text-gray-800 mb-4 mt-6">Liste des Cours</h3>
+                                <div className="table-container">
+                                    <table className="w-full">
+                                        <thead>
+                                            <tr>
+                                                <th className="p-4">Nom du Cours</th>
+                                                <th className="p-4">Ajouté par</th>
+                                                <th className="p-4">Date d'Ajout</th>
+                                                <th className="p-4">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {courses.length > 0 ? (
+                                                courses.map(course => (
+                                                    <tr key={course.id} className="border-b hover:bg-gray-50">
+                                                        <td className="p-4">{course.name}</td>
+                                                        <td className="p-4">{course.uploadedBy}</td>
+                                                        <td className="p-4">{course.uploadDate || 'N/A'}</td>
+                                                        <td className="p-4">
+                                                            <button
+                                                                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 hover-effect focus:outline-none focus:ring-2 focus:ring-red-500"
+                                                                onClick={() => handleCourseDelete(course.id)}
+                                                                onMouseDown={handleClick}
+                                                                aria-label={`Supprimer le cours ${course.name}`}
+                                                            >
+                                                                Supprimer
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            ) : (
+                                                <tr>
+                                                    <td colSpan="4" className="p-4 text-center text-gray-500">
+                                                        Aucun cours disponible
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ),
+                emploi: (
+                    <div className="p-6 fade-in full-height">
+                        <div className="max-w-7xl mx-auto">
+                            <h2 className="text-2xl font-bold text-gray-800 mb-6">Emploi du Temps 🗓️</h2>
+                            <div className="card">
+                                <div className="flex justify-between items-center mb-4">
+                                    <h3 className="text-xl font-semibold text-gray-800">Votre Emploi du Temps</h3>
+                                    {timetable && (
+                                        <button
+                                            className="gradient-button text-white px-4 py-2 rounded-lg hover-effect focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                            onClick={handleExportTimetable}
+                                            onMouseDown={handleClick}
+                                            aria-label="Exporter l'emploi du temps en PDF"
+                                        >
+                                            Exporter en PDF
+                                        </button>
+                                    )}
+                                </div>
+                                {timetable && timetable.courses && timetable.courses.length > 0 ? (
+                                    <div className="table-container mb-6">
+                                        <table className="w-full">
+                                            <thead>
+                                                <tr>
+                                                    <th className="p-4">Heure</th>
+                                                    {days.map(day => (
+                                                        <th key={day} className="p-4">{day.charAt(0).toUpperCase() + day.slice(1)}</th>
+                                                    ))}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {timeSlots.map(slot => (
+                                                    <tr key={slot} className="border-b hover:bg-gray-50">
+                                                        <td className="p-4">{slot}</td>
+                                                        {days.map(day => {
+                                                            const course = timetable.courses.find(c => c.day.toLowerCase() === day && c.time === slot);
+                                                            return (
+                                                                <td key={`${day}-${slot}`} className="p-4">
+                                                                    {course ? (
+                                                                        <div>
+                                                                            <div>{course.subject}</div>
+                                                                            <div className="text-sm text-gray-500">{course.group}</div>
+                                                                            <div className="text-sm text-gray-500">{course.room}</div>
+                                                                        </div>
+                                                                    ) : slot === '12:00-13:00' ? 'Pause' : '-'}
+                                                                </td>
+                                                            );
+                                                        })}
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                ) : (
+                                    <p className="text-gray-500 text-center mb-6">Aucun emploi du temps disponible pour le moment.</p>
+                                )}
+                                <h3 className="text-xl font-semibold text-gray-800 mb-4">Ajouter un Document</h3>
+                                <input
+                                    type="file"
+                                    accept=".pdf,.doc,.docx"
+                                    onChange={handleTimetableDocumentUpload}
+                                    className="mb-6 text-gray-600"
+                                    aria-label="Uploader un document pour l'emploi du temps"
+                                />
+                                <h3 className="text-xl font-semibold text-gray-800 mb-4">Documents Associés</h3>
+                                <div className="table-container">
+                                    <table className="w-full">
+                                        <thead>
+                                            <tr>
+                                                <th className="p-4">Titre</th>
+                                                <th className="p-4">Nom du Fichier</th>
+                                                <th className="p-4">Ajouté par</th>
+                                                <th className="p-4">Date d'Ajout</th>
+                                                <th className="p-4">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {timetableDocuments.length > 0 ? (
+                                                timetableDocuments.map(doc => (
+                                                    <tr key={doc.id} className="border-b hover:bg-gray-50">
+                                                        <td className="p-4">{doc.title}</td>
+                                                        <td className="p-4">{doc.fileName}</td>
+                                                        <td className="p-4">{doc.uploadedBy}</td>
+                                                        <td className="p-4">{doc.uploadDate || 'N/A'}</td>
+                                                        <td className="p-4">
+                                                            <button
+                                                                className="gradient-button text-white px-4 py-2 rounded-lg hover-effect focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                                                onClick={() => handleDownload(doc.id, doc.fileName)}
+                                                                onMouseDown={handleClick}
+                                                                aria-label={`Télécharger ${doc.fileName}`}
+                                                            >
+                                                                Télécharger
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            ) : (
+                                                <tr>
+                                                    <td colSpan="5" className="p-4 text-center text-gray-500">
+                                                        Aucun document disponible
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ),
+                parametres: (
+                    <div className="p-6 fade-in full-height">
+                        <div className="max-w-7xl mx-auto">
+                            <h2 className="text-2xl font-bold text-gray-800 mb-6">Paramètres ⚙️</h2>
+                            <div className="card">
+                                <h3 className="text-xl font-semibold text-gray-800 mb-4">Mettre à jour le Profil</h3>
+                                <form onSubmit={handleSettingsSubmit} className="space-y-4 max-w-lg">
+                                    <div>
+                                        <label htmlFor="emailInput" className="block text-gray-700 font-medium mb-2">
+                                            Email
+                                        </label>
+                                        <input
+                                            id="emailInput"
+                                            type="email"
+                                            className="border p-3 rounded-lg w-full bg-gray-50 text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                            value={emailInput}
+                                            onChange={(e) => setEmailInput(e.target.value)}
+                                            placeholder="Entrez votre email"
+                                            aria-label="Email"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="phoneNumberInput" className="block text-gray-700 font-medium mb-2">
+                                            Numéro de Téléphone (pour réinitialisation du mot de passe)
+                                        </label>
+                                        <input
+                                            id="phoneNumberInput"
+                                            type="tel"
+                                            className="border p-3 rounded-lg w-full bg-gray-50 text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                            value={phoneNumberInput}
+                                            onChange={(e) => setPhoneNumberInput(e.target.value)}
+                                            placeholder="Entrez votre numéro de téléphone"
+                                            aria-label="Numéro de téléphone"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="passwordInput" className="block text-gray-700 font-medium mb-2">
+                                            Nouveau Mot de Passe
+                                        </label>
+                                        <input
+                                            id="passwordInput"
+                                            type="password"
+                                            className="border p-3 rounded-lg w-full bg-gray-50 text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                            value={passwordInput}
+                                            onChange={(e) => setPasswordInput(e.target.value)}
+                                            placeholder="Entrez un nouveau mot de passe"
+                                            aria-label="Nouveau mot de passe"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="photoUploadSettings" className="block text-gray-700 font-medium mb-2">
+                                            Photo de Profil
+                                        </label>
+                                        <input
+                                            id="photoUploadSettings"
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handlePhotoUpload}
+                                            className="mb-4 text-gray-600"
+                                            aria-label="Changer la photo de profil"
+                                        />
+                                        {profilePhoto && (
+                                            <img
+                                                src={profilePhoto}
+                                                alt="Photo de profil"
+                                                className="profile-photo mt-2"
+                                            />
+                                        )}
+                                    </div>
+                                    {settingsError && <p className="error-message">{settingsError}</p>}
+                                    {settingsSuccess && <p className="success-message">{settingsSuccess}</p>}
+                                    <button
+                                        type="submit"
+                                        className="gradient-button text-white py-2 px-6 rounded-lg hover-effect focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                        onClick={handleClick}
+                                        aria-label="Mettre à jour le profil"
+                                    >
+                                        Mettre à Jour
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                ),
+                aide: (
+                    <div className="p-6 fade-in full-height">
+                        <div className="max-w-7xl mx-auto">
+                            <h2 className="text-2xl font-bold text-gray-800 mb-6">Aide ❓</h2>
+                            <div className="card">
+                                <p className="mb-4 text-gray-600">Recommandations pour les enseignants :</p>
+                                <ul className="text-gray-600 space-y-3">
+                                    <li>Consultez régulièrement les contraintes et les documents 📄.</li>
+                                    <li>Utilisez l'assistant IA 🤖 pour planifier vos cours.</li>
+                                    <li>Contactez le support via la messagerie 💬 en cas de besoin.</li>
+                                </ul>
+                                <a
+                                    href="aideens.html"
+                                    className="mt-6 inline-block gradient-button text-white py-2 px-6 rounded-lg hover-effect focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    onClick={handleClick}
+                                    aria-label="Accéder au guide enseignant"
+                                >
+                                    Accéder au Guide
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                )
+            };
+
+            return (
+                <div className="flex min-h-screen w-full">
+                    <div className={`sidebar text-white w-72 space-y-6 py-8 px-4 fixed inset-y-0 left-0 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 transition duration-300 ease-in-out z-20`} role="navigation">
+                        <div className="logo-container">
+                            <img
+                                src="FARENOUNIVERSITY.jpg"
+                                alt="Logo Fareno University"
+                                className="logo-placeholder"
+                                onError={(e) => {
+                                    e.target.style.display = 'none';
+                                    e.target.nextSibling.style.paddingLeft = '0';
+                                }}
+                            />
+                            <h1 className="text-3xl font-bold text-white">Fareno University</h1>
+                        </div>
+                        <nav className="space-y-2">
+                            {['messagerie', 'documents', 'ia', 'contraintes', 'cours', 'emploi', 'parametres', 'aide'].map(section => (
+                                <button
+                                    key={section}
+                                    className={`w-full text-left py-3 px-4 rounded-lg transition duration-200 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 ${activeSection === section ? 'bg-blue-600' : ''}`}
+                                    onClick={() => {
+                                        setActiveSection(section);
+                                        if (window.innerWidth < 768) setIsSidebarOpen(false);
+                                    }}
+                                    onMouseDown={handleClick}
+                                    aria-label={`Aller à ${section}`}
+                                >
+                                    <span className="flex items-center">
+                                        {section === 'messagerie' ? 'Messagerie 💬' :
+                                         section === 'documents' ? 'Documents 📄' :
+                                         section === 'ia' ? 'Assistant IA 🤖' :
+                                         section === 'contraintes' ? 'Contraintes ⏰' :
+                                         section === 'cours' ? 'Cours 📚' :
+                                         section === 'emploi' ? 'Emploi du Temps 🗓️' :
+                                         section === 'parametres' ? 'Paramètres ⚙️' :
+                                         'Aide ❓'}
+                                        {section === 'messagerie' && unreadMessagesCount > 0 && (
+                                            <span className="notification-badge">{unreadMessagesCount}</span>
+                                        )}
+                                    </span>
+                                </button>
+                            ))}
+                            <button
+                                className="w-full text-left py-3 px-4 rounded-lg transition bg-red-600 hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500"
+                                onClick={handleLogout}
+                                onMouseDown={handleClick}
+                                aria-label="Se déconnecter"
+                            >
+                                Déconnexion 🚪
+                            </button>
+                        </nav>
+                    </div>
+                    <div className="flex-1 flex flex-col w-full">
+                        <header className="bg-blue-800 text-white p-5 flex justify-between items-center">
+                            <div className="flex items-center">
+                                <button
+                                    className="md:hidden text-white focus:outline-none focus:ring-2 focus:ring-white"
+                                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                                    aria-label="Ouvrir le menu"
+                                >
+                                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                                    </svg>
+                                </button>
+                                <h1 className="text-2xl font-bold ml-4">Tableau de Bord Enseignant</h1>
+                            </div>
+                            <div className="flex items-center space-x-6">
+                                <div className="flex items-center space-x-3">
+                                    <span className="text-white font-medium">{user ? `Bienvenue, ${user.email}` : 'Enseignant'}</span>
+                                    <label htmlFor="photoUpload" className="cursor-pointer">
+                                        {profilePhoto ? (
+                                            <img
+                                                src={profilePhoto}
+                                                alt="Photo de profil"
+                                                className="profile-photo"
+                                            />
+                                        ) : (
+                                            <div className="photo-placeholder">📷</div>
+                                        )}
+                                    </label>
+                                    <input
+                                        id="photoUpload"
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handlePhotoUpload}
+                                        className="hidden"
+                                        aria-label="Changer la photo de profil"
+                                    />
+                                </div>
+                                <span className={`px-3 py-1 rounded-lg text-sm font-medium ${isOnline ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'}`}>
+                                    {isOnline ? 'En ligne' : 'Hors ligne'}
+                                </span>
+                                <div className="text-sm font-medium">Temps passé : {formatTime(timeSpent)}</div>
+                            </div>
+                        </header>
+                        <main className="flex-1 p-6 w-full" role="main">{sections[activeSection]}</main>
+                    </div>
+                </div>
+            );
+        }
+
+        const rootElement = document.getElementById('root');
+        if (rootElement) {
+            ReactDOM.render(<TeacherDashboard />, rootElement);
+        } else {
+            console.error('Root element not found');
+        }
+
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        if (loadingOverlay) {
+            loadingOverlay.addEventListener('animationend', () => {
+                loadingOverlay.style.display = 'none';
+            }, { once: true }); // Ensure the event listener is removed after execution
+        }
+    </script>
+</body>
+</html>

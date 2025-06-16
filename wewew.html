@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fareno University</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f4f8;
+            color: #333;
+        }
+        header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        nav {
+            background-color: #34495e;
+            padding: 10px 20px;
+            text-align: right;
+        }
+        nav a {
+            color: #ecf0f1;
+            margin-left: 20px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+        nav a:hover {
+            color: #3498db;
+        }
+        .content {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            display: grid;
+            gap: 20px;
+        }
+        .section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        .section:hover {
+            transform: translateY(-5px);
+        }
+        .section h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+        .section a {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+        .section a:hover {
+            background-color: #2980b9;
+        }
+        footer {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        footer a {
+            color: #ecf0f1;
+            margin: 0 10px;
+            text-decoration: none;
+        }
+        footer a:hover {
+            color: #3498db;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        ul li {
+            padding: 5px 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><circle cx="5" cy="5" r="5" fill="%233498db"/></svg>') no-repeat left 2px;
+            padding-left: 15px;
+        }
+        @media (min-width: 768px) {
+            .content {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Fareno University</h1>
+        <p>Inspiring Futures</p>
+    </header>
+
+    <nav>
+        <a href="#">FR</a>
+        <a href="#">Menu</a>
+    </nav>
+
+    <div class="content">
+        <div class="section">
+            <h2>Find Your Program</h2>
+            <a href="#">Apply Now</a>
+            <a href="#">Enroll</a>
+            <a href="#">Work With Us</a>
+        </div>
+
+        <div class="section">
+            <h2>Maps and Contacts</h2>
+            <a href="#">Enroll at University</a>
+            <a href="#">Explore Libraries</a>
+            <a href="#">Newsroom</a>
+        </div>
+
+        <div class="section">
+            <h2>Latest News</h2>
+            <p>All our updates on our <a href="#">Newsroom</a></p>
+            <ul>
+                <li>Ride into the May Bike Challenge 2025!</li>
+                <li>Honoring Excellence in European Month</li>
+                <li>InBrain Pharma Wins France 2030 Award</li>
+            </ul>
+            <a href="#">View Full Agenda</a>
+        </div>
+
+        <div class="section">
+            <h2>Western Europe Hub</h2>
+            <p>This prime location drives our scientific, intellectual, and economic strategies.</p>
+            <a href="#">Discover More</a>
+        </div>
+
+        <div class="section">
+            <h2>Faculties, Schools, and Institutes</h2>
+            <p>Fareno University brings together top schools, faculties, and institutes.</p>
+            <a href="#">Learn More</a>
+        </div>
+
+        <div class="section">
+            <h2>Research at Fareno</h2>
+            <p>Our research tackles major societal transitions across all dimensions.</p>
+            <a href="#">Explore Research</a>
+        </div>
+
+        <div class="section">
+            <h2>S'inscrire, Se connecter et Travailler avec nous</h2>
+            <p>Join our community or collaborate with us.</p>
+            <a href="#">Register</a>
+            <a href="#">Log In</a>
+            <a href="#">Work With Us</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>© Fareno University - 2025</p>
+        <p>42 University Street, 59000 Lille - France</p>
+        <a href="#">Site Map</a> | <a href="#">Accessibility</a> | <a href="#">Legal Notices</a> | <a href="#">Personal Data</a>
+        <div>
+            <a href="#">Careers</a> | <a href="#">Professional Network</a> | <a href="#">Foundation</a> | <a href="#">Regulations</a> | <a href="#">Public Tenders</a> | <a href="#">Press Room</a>
+        </div>
+    </footer>
+</body>
+</html>

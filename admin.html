@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Page de connexion administrateur pour Fareno University">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="shortcut icon" href="FARENOUNIVERSITY.jpg" type="image/x-icon">
+    <title>Connexion Administrateur - Fareno University</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .fade-in {
+            animation: fadeIn 1s ease-in-out;
+        }
+        .bounce {
+            animation: bounce 1.5s infinite;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .hover-effect {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .hover-effect:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        .error-message {
+            color: #dc2626;
+            margin-top: 1rem;
+            display: none;
+            font-size: 0.875rem;
+        }
+        .success-message {
+            color: #15803d;
+            margin-top: 1rem;
+            display: none;
+            font-size: 0.875rem;
+        }
+        .input-error {
+            border-color: #dc2626;
+        }
+        .password-toggle {
+            cursor: pointer;
+            user-select: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center" id="background">
+    <div class="bg-white rounded-xl p-8 shadow-2xl max-w-md w-full text-center fade-in">
+        <h1 class="text-4xl font-bold text-gray-800 mb-6">Connexion Administrateur</h1>
+        <p class="text-gray-600 mb-8">Entrez vos identifiants pour accéder au panel admin.</p>
+        <p id="userStatus" class="text-gray-600 mb-4" aria-live="polite"></p>
+        <form id="loginForm" class="space-y-4" novalidate>
+            <input type="hidden" name="_csrf" id="csrfToken">
+            <div class="relative">
+                <input
+                    type="email"
+                    id="email"
+                    placeholder="Email"
+                    class="border p-4 rounded w-full bg-gray-100 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                    aria-describedby="emailError"
+                />
+                <p id="emailError" class="error-message"></p>
+            </div>
+            <div class="relative">
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Mot de passe"
+                    class="border p-4 rounded w-full bg-gray-100 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                    aria-describedby="passwordError"
+                />
+                <span class="absolute right-3 top-4 password-toggle" onclick="togglePassword()">👁️</span>
+                <p id="passwordError" class="error-message"></p>
+            </div>
+            <div class="flex items-center justify-between">
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" id="rememberMe" class="rounded">
+                    <span class="text-gray-600 text-sm">Se souvenir de moi</span>
+                </label>
+                <a href="/forgot-password-admin.html" class="text-blue-600 text-sm hover:underline">Mot de passe oublié ?</a>
+            </div>
+            <button
+                type="submit"
+                id="loginButton"
+                class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover-effect hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                disabled
+            >
+                <span id="buttonText">Se connecter</span>
+                <span id="loadingSpinner" class="hidden animate-spin">⏳</span>
+            </button>
+            <p id="errorMessage" class="error-message" aria-live="assertive"></p>
+            <p id="successMessage" class="success-message" aria-live="assertive"></p>
+        </form>
+        <a href="choix.html" class="absolute top-4 left-4 text-white font-medium hover:underline" aria-label="Retour à la page précédente">Retour</a>
+        <div class="absolute top-4 left-4 text-white text-lg bounce" aria-hidden="true">🔐</div>
+        <div class="fixed bottom-4 right-4 text-white text-sm">
+            <span id="datetime" aria-live="polite"></span>
+        </div>
+    </div>
+    <script>
+        const colors = [
+            'bg-gradient-to-br from-red-500 to-orange-600',
+            'bg-gradient-to-br from-orange-600 to-yellow-500',
+            'bg-gradient-to-br from-yellow-500 to-green-400',
+            'bg-gradient-to-br from-green-400 to-blue-500',
+            'bg-gradient-to-br from-blue-500 to-indigo-600',
+            'bg-gradient-to-br from-indigo-600 to-purple-600',
+            'bg-gradient-to-br from-purple-600 to-red-500'
+        ];
+
+        let colorIndex = 0;
+        const background = document.getElementById('background');
+
+        function changeBackgroundColor() {
+            background.className = `min-h-screen flex items-center justify-center ${colors[colorIndex]}`;
+            colorIndex = (colorIndex + 1) % colors.length;
+        }
+
+        changeBackgroundColor();
+        setInterval(changeBackgroundColor, 10000);
+
+        function updateDateTime() {
+            const now = new Date();
+            const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+            const date = now.toLocaleDateString('fr-FR', optionsDate);
+            const time = now.toLocaleTimeString('fr-FR', optionsTime);
+            document.getElementById('datetime').textContent = `${time}, ${date}`;
+        }
+
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.querySelector('.password-toggle');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.textContent = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.textContent = '👁️';
+            }
+        }
+
+        function validateEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        function validateForm() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const emailError = document.getElementById('emailError');
+            const passwordError = document.getElementById('passwordError');
+            const loginButton = document.getElementById('loginButton');
+
+            let isValid = true;
+
+            if (!email) {
+                emailError.textContent = 'Veuillez entrer un email.';
+                emailError.style.display = 'block';
+                document.getElementById('email').classList.add('input-error');
+                isValid = false;
+            } else if (!validateEmail(email)) {
+                emailError.textContent = 'Veuillez entrer un email valide.';
+                emailError.style.display = 'block';
+                document.getElementById('email').classList.add('input-error');
+                isValid = false;
+            } else {
+                emailError.style.display = 'none';
+                document.getElementById('email').classList.remove('input-error');
+            }
+
+            if (!password) {
+                passwordError.textContent = 'Veuillez entrer un mot de passe.';
+                passwordError.style.display = 'block';
+                document.getElementById('password').classList.add('input-error');
+                isValid = false;
+            } else if (password.length < 6) {
+                passwordError.textContent = 'Le mot de passe doit contenir au moins 6 caractères.';
+                passwordError.style.display = 'block';
+                document.getElementById('password').classList.add('input-error');
+                isValid = false;
+            } else {
+                passwordError.style.display = 'none';
+                document.getElementById('password').classList.remove('input-error');
+            }
+
+            loginButton.disabled = !isValid;
+        }
+
+        document.getElementById('email').addEventListener('input', validateForm);
+        document.getElementById('password').addEventListener('input', validateForm);
+
+        async function fetchCsrfToken() {
+            try {
+                const response = await fetch('/api/csrf-token', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                document.getElementById('csrfToken').value = data.csrfToken;
+            } catch (error) {
+                console.error('Erreur lors de la récupération du jeton CSRF:', error);
+            }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+            const loginButton = document.getElementById('loginButton');
+            const buttonText = document.getElementById('buttonText');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+
+            loginButton.disabled = true;
+            buttonText.classList.add('hidden');
+            loadingSpinner.classList.remove('hidden');
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': document.getElementById('csrfToken').value
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ email, password, rememberMe })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    errorMessage.style.display = 'none';
+                    successMessage.textContent = 'Connexion réussie ! Redirection...';
+                    successMessage.style.display = 'block';
+                    localStorage.setItem('connectadmin', JSON.stringify(data.admin));
+                    document.getElementById('userStatus').textContent = `Connecté en tant que : ${data.admin.email}`;
+                    setTimeout(() => {
+                        window.location.href = '/dashboard.html';
+                    }, 1000);
+                } else {
+                    errorMessage.textContent = data.error || 'Erreur de connexion.';
+                    errorMessage.style.display = 'block';
+                    successMessage.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Erreur lors de la connexion:', error);
+                errorMessage.textContent = 'Erreur de connexion au serveur.';
+                errorMessage.style.display = 'block';
+                successMessage.style.display = 'none';
+            } finally {
+                loginButton.disabled = false;
+                buttonText.classList.remove('hidden');
+                loadingSpinner.classList.add('hidden');
+            }
+        });
+
+        window.logout = async () => {
+            try {
+                await fetch('/api/logout', { 
+                    method: 'POST', 
+                    credentials: 'include',
+                    headers: {
+                        'X-CSRF-Token': document.getElementById('csrfToken').value
+                    }
+                });
+                localStorage.removeItem('connectadmin');
+                document.getElementById('userStatus').textContent = 'Utilisateur non connecté';
+                window.location.href = '/index.html';
+            } catch (error) {
+                console.error('Erreur lors de la déconnexion:', error);
+            }
+        };
+
+        // Initialiser le formulaire
+        fetchCsrfToken();
+        validateForm();
+    </script>
+</body>
+</html>

@@ -1,0 +1,554 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Messagerie pour Fareno University - Administration">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="shortcut icon" href="FARENOUNIVERSITY.jpg" type="image/x-icon">
+    <title>Messagerie - Fareno University</title>
+    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.20.15/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7fa;
+            margin: 0;
+        }
+
+        #background-image {
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            background-size: 200% 200%;
+            animation: gradientShift 20s ease-in-out infinite;
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            opacity: 0.9;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        #root {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            background-color: rgba(255, 255, 255, 0.95);
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease, opacity 0.5s ease;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .card-animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        .bounce {
+            animation: bounce 2s infinite;
+        }
+
+        .pulse {
+            animation: pulse 2.5s infinite;
+        }
+
+        .button-click {
+            animation: clickEffect 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes clickEffect {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.97); }
+            100% { transform: scale(1); }
+        }
+
+        .hover-effect {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .hover-effect:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .message-bubble {
+            max-width: 80%;
+            padding: 12px 18px;
+            margin: 8px 12px;
+            border-radius: 20px;
+            word-wrap: break-word;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-message {
+            background: linear-gradient(45deg, #10b981, #34d399);
+            color: white;
+            align-self: flex-end;
+        }
+
+        .recipient-message {
+            background-color: #e5e7eb;
+            color: #1f2937;
+            align-self: flex-start;
+        }
+
+        .chat-container {
+            height: calc(100vh - 10rem);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #f9fafb;
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-size: 0.9rem;
+            margin-top: 0.75rem;
+            font-weight: 500;
+        }
+
+        .gradient-button {
+            background: linear-gradient(45deg, #7c3aed, #a78bfa);
+            transition: background 0.3s ease;
+        }
+
+        .gradient-button:hover {
+            background: linear-gradient(45deg, #6d28d9, #8b5cf6);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeOut 1s ease-in-out forwards;
+            animation-delay: 0.7s;
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; display: none; }
+        }
+
+        .profile-photo {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid #e5e7eb;
+        }
+
+        .photo-placeholder {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: #d1d5db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            font-size: 1rem;
+            cursor: pointer;
+            border: 2px solid #e5e7eb;
+        }
+
+        header {
+            background: linear-gradient(90deg, #1e3a8a, #2563eb);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div id="background-image"></div>
+    <div id="loadingOverlay" class="loading-overlay">
+        <div className="text-3xl font-semibold text-gray-800 animate-spin">🎓</div>
+    </div>
+    <div id="root" class="w-full"></div>
+    <div class="absolute top-4 left-4 text-white text-xl bounce" aria-hidden="true">💬</div>
+    <div class="fixed bottom-4 right-4 bg-gray-900 text-white text-sm rounded-lg px-4 py-2 shadow-lg">
+        <span id="datetime" aria-live="polite"></span>
+    </div>
+
+    <script type="text/babel">
+        function Messaging() {
+            const [message, setMessage] = React.useState('');
+            const [messages, setMessages] = React.useState([]);
+            const [isLoading, setIsLoading] = React.useState(false);
+            const [error, setError] = React.useState('');
+            const [user, setUser] = React.useState(null);
+            const [profilePhoto, setProfilePhoto] = React.useState(null);
+            const [timeSpent, setTimeSpent] = React.useState(0);
+            const [isOnline, setIsOnline] = React.useState(navigator.onLine);
+            const chatRef = React.useRef(null);
+
+            // Base URL for API endpoints using current host and port
+            const API_BASE_URL = `${window.location.protocol}//${window.location.host}/api`;
+
+            React.useEffect(() => {
+                const startTime = Date.now();
+                const timer = setInterval(() => {
+                    setTimeSpent(Math.floor((Date.now() - startTime) / 1000));
+                }, 1000);
+
+                const updateDateTime = () => {
+                    const datetimeElement = document.getElementById('datetime');
+                    if (datetimeElement) {
+                        const now = new Date();
+                        const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                        const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Africa/Lagos' };
+                        const date = now.toLocaleDateString('fr-FR', optionsDate);
+                        const time = now.toLocaleTimeString('fr-FR', optionsTime);
+                        datetimeElement.textContent = `${time} WAT, ${date}`;
+                    }
+                };
+                updateDateTime();
+                const dateTimeTimer = setInterval(updateDateTime, 1000);
+
+                const savedUser = localStorage.getItem('connectadmin');
+                if (savedUser) {
+                    try {
+                        const parsedUser = JSON.parse(savedUser);
+                        setUser({ name: parsedUser.name || 'Administrateur', role: parsedUser.role || 'Admin' });
+                    } catch (e) {
+                        console.error('Erreur lors du parsing de connectadmin:', e);
+                        setUser({ name: 'Administrateur', role: 'Admin' });
+                    }
+                }
+
+                const savedPhoto = localStorage.getItem('adminProfilePhoto');
+                if (savedPhoto) {
+                    setProfilePhoto(savedPhoto);
+                }
+
+                fetchMessages();
+
+                const handleOnline = () => setIsOnline(true);
+                const handleOffline = () => setIsOnline(false);
+                window.addEventListener('online', handleOnline);
+                window.removeEventListener('offline', handleOffline);
+
+                const card = document.querySelector('.card');
+                if (card) {
+                    setTimeout(() => {
+                        card.classList.add('card-animate');
+                    }, 200);
+                }
+
+                return () => {
+                    clearInterval(timer);
+                    clearInterval(dateTimeTimer);
+                    window.removeEventListener('online', handleOnline);
+                    window.removeEventListener('offline', handleOffline);
+                };
+            }, []);
+
+            React.useEffect(() => {
+                if (chatRef.current) {
+                    chatRef.current.scrollTop = chatRef.current.scrollHeight;
+                }
+            }, [messages]);
+
+            const formatTime = (seconds) => {
+                const hrs = Math.floor(seconds / 3600);
+                const mins = Math.floor((seconds % 3600) / 60);
+                const secs = seconds % 60;
+                return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            };
+
+            const fetchMessages = async () => {
+                try {
+                    console.log(`Envoi de la requête GET ${API_BASE_URL}/messages`);
+                    const response = await fetch(`${API_BASE_URL}/messages`);
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`Erreur HTTP ${response.status}: ${errorText}`);
+                    }
+                    const data = await response.json();
+                    const formattedData = data.map((msg, index) => ({
+                        ...msg,
+                        index
+                    }));
+                    console.log('Messages reçus:', formattedData);
+                    setMessages(formattedData);
+                    setError('');
+                } catch (err) {
+                    console.error('Erreur lors du chargement des messages:', err.message);
+                    setError('Impossible de charger les messages: ' + err.message);
+                }
+            };
+
+            const handleSendMessage = async (type) => {
+                if (!message.trim()) {
+                    setError('Veuillez écrire un message');
+                    return;
+                }
+                setIsLoading(true);
+                setError('');
+                try {
+                    const endpoint = type === 'students' ? `${API_BASE_URL}/messages-etu` : `${API_BASE_URL}/messages-ens`;
+                    console.log(`Envoi du message à ${endpoint}:`, { content: message });
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ content: message })
+                    });
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`Erreur HTTP ${response.status}: ${errorText}`);
+                    }
+                    const newMessage = await response.json();
+                    console.log('Message envoyé:', newMessage);
+                    setMessages(prev => [...prev, { ...newMessage, index: prev.length }]);
+                    setMessage('');
+                } catch (err) {
+                    console.error('Erreur lors de l\'envoi du message:', err.message);
+                    setError('Impossible d\'envoyer le message: ' + err.message);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+
+            const handleDeleteMessage = async (index, type) => {
+                setIsLoading(true);
+                setError('');
+                try {
+                    const endpoint = `${API_BASE_URL}/messages/${type}/${index}`;
+                    console.log(`Suppression du message à ${endpoint}`);
+                    const response = await fetch(endpoint, {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`Erreur HTTP ${response.status}: ${errorText}`);
+                    }
+                    console.log('Message supprimé:', { index, type });
+                    setMessages(prev => prev.filter(msg => msg.index !== index));
+                } catch (err) {
+                    console.error('Erreur lors de la suppression du message:', err.message);
+                    setError('Impossible de supprimer le message: ' + err.message);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+
+            const handlePhotoUpload = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                if (!file.type.startsWith('image/')) {
+                    alert('Veuillez sélectionner une image valide.');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const imageData = reader.result;
+                    setProfilePhoto(imageData);
+                    localStorage.setItem('adminProfilePhoto', imageData);
+                };
+                reader.onerror = () => {
+                    alert('Erreur lors du chargement de l\'image.');
+                };
+                reader.readAsDataURL(file);
+            };
+
+            const handleLogout = async () => {
+                if (window.confirm('Voulez-vous vraiment vous déconnecter ?')) {
+                    try {
+                        await fetch('/api/logout', { method: 'POST' });
+                        localStorage.removeItem('connectadmin');
+                        localStorage.removeItem('adminProfilePhoto');
+                        window.location.href = 'choix.html';
+                    } catch (err) {
+                        console.error('Erreur lors de la déconnexion:', err);
+                        alert('Erreur lors de la déconnexion: ' + err.message);
+                    }
+                }
+            };
+
+            const handleClick = (e) => {
+                e.target.classList.add('button-click');
+                setTimeout(() => e.target.classList.remove('button-click'), 300);
+            };
+
+            const handleKeyPress = (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                }
+            };
+
+            return (
+                <div className="min-h-screen w-full">
+                    <header className="bg-blue-800 text-white p-5 flex justify-between items-center">
+                        <div className="flex items-center">
+                            <button
+                                className="բ-button text-white px-4 py-2 rounded-lg hover-effect focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                onClick={() => window.location.href = 'dashboard.html'}
+                                onMouseDown={handleClick}
+                                aria-label="Retour au tableau de bord"
+                            >
+                                Retour au Tableau de Bord
+                            </button>
+                            <h1 className="text-2xl font-bold ml-4">Messagerie</h1>
+                        </div>
+                        <div className="flex items-center space-x-6">
+                            <div className="flex items-center space-x-3">
+                                <span className="text-white font-medium">{user ? `Bienvenue, ${user.name}` : 'Administrateur'}</span>
+                                <label htmlFor="photoUpload" className="cursor-pointer">
+                                    {profilePhoto ? (
+                                        <img
+                                            src={profilePhoto}
+                                            alt="Photo de profil"
+                                            className="profile-photo"
+                                        />
+                                    ) : (
+                                        <div className="photo-placeholder">📷</div>
+                                    )}
+                                </label>
+                                <input
+                                    id="photoUpload"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handlePhotoUpload}
+                                    className="hidden"
+                                    aria-label="Changer la photo de profil"
+                                />
+                            </div>
+                            <span className={`px-3 py-1 rounded-lg text-sm font-medium ${isOnline ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'}`}>
+                                {isOnline ? 'En ligne' : 'Hors ligne'}
+                            </span>
+                            <div className="text-sm font-medium">Temps passé : {formatTime(timeSpent)}</div>
+                        </div>
+                    </header>
+                    <main className="flex-1 p-6 w-full" role="main">
+                        <div className="fade-in chat-container max-w-7xl mx-auto">
+                            <div className="card h-full flex flex-col">
+                                <h2 className="text-2xl font-bold text-gray-800 mb-6">Messagerie 💬</h2>
+                                <div className="chat-area" ref={chatRef}>
+                                    {messages.length > 0 ? (
+                                        messages.map((msg) => (
+                                            <div
+                                                key={msg.index}
+                                                className={`message-bubble fade-in ${msg.type === 'user' ? 'user-message' : 'recipient-message'}`}
+                                            >
+                                                <div className="text-gray-800">{msg.content}</div>
+                                                <div className="text-xs text-gray-500 mt-2">
+                                                    Envoyé à {msg.type === 'students' ? 'Étudiants' : 'Enseignants'} le {new Date(msg.timestamp).toLocaleString('fr-FR')}
+                                                </div>
+                                                <button
+                                                    className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 hover-effect text-xs mt-2"
+                                                    onClick={() => handleDeleteMessage(msg.index, msg.type)}
+                                                    onMouseDown={handleClick}
+                                                    disabled={isLoading}
+                                                    aria-label={`Supprimer le message ${msg.content}`}
+                                                >
+                                                    Supprimer
+                                                </button>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="text-center text-gray-500 mt-4">
+                                            Aucun message envoyé.
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="p-4 bg-white border-t border-gray-200">
+                                    <div className="flex items-center space-x-3">
+                                        <textarea
+                                            placeholder="Écrivez un message..."
+                                            className="flex-1 border p-3 rounded-lg h-16 bg-gray-50 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                                            value={message}
+                                            onChange={(e) => setMessage(e.target.value)}
+                                            onKeyPress={handleKeyPress}
+                                            aria-label="Écrire un message"
+                                        />
+                                        <button
+                                            className="gradient-button text-white px-6 py-2 rounded-lg hover-effect focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                            onClick={() => handleSendMessage('students')}
+                                            onMouseDown={handleClick}
+                                            disabled={isLoading}
+                                            aria-label="Envoyer aux étudiants"
+                                        >
+                                            {isLoading ? 'Envoi... ⏳' : 'À Étudiants'}
+                                        </button>
+                                        <button
+                                            className="gradient-button text-white px-6 py-2 rounded-lg hover-effect focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                            onClick={() => handleSendMessage('teachers')}
+                                            onMouseDown={handleClick}
+                                            disabled={isLoading}
+                                            aria-label="Envoyer aux enseignants"
+                                        >
+                                            {isLoading ? 'Envoi... ⏳' : 'À Enseignants'}
+                                        </button>
+                                    </div>
+                                    {error && (
+                                        <div className="error-message mt-2">{error}</div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<Messaging />, document.getElementById('root'));
+
+        document.getElementById('loadingOverlay').addEventListener('animationend', () => {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        });
+    </script>
+</body>
+</html>
