@@ -1,11 +1,11 @@
 # FARENO - UNIVERSITY (Version 2)
 
-![Bannière FARENO University](https://https://github.com/Koniza237/qwert/FARENOUNIVERSITY.jpg)  
+![Bannière FARENO University](https://raw.githubusercontent.com/Koniza237/qwert/main/FARENOUNIVERSITY.jpg)  
 *Une application web dynamique pour la gestion des emplois du temps universitaires.*
 
 ## Aperçu
 
-FARENO - UNIVERSITY est une plateforme web complète conçue pour une gestion efficace des emplois du temps universitaires. Cette Version 1 se concentre sur les fonctionnalités principales pour les administrateurs, les enseignants et les étudiants, permettant de créer, visualiser et mettre à jour les emplois du temps de manière fluide.
+FARENO - UNIVERSITY est une plateforme web complète conçue pour une gestion efficace des emplois du temps universitaires. Cette Version 2 se concentre sur les fonctionnalités principales pour les administrateurs, les enseignants et les étudiants, permettant de créer, visualiser et mettre à jour les emplois du temps de manière fluide.
 
 ### Fonctionnalités Clés
 - **Authentification des Utilisateurs** : Connexion sécurisée pour différents rôles (admin, enseignants, étudiants).
@@ -70,10 +70,10 @@ Ce projet est open-source sous la licence Apache 2.0, encourageant les contribut
 
 ## Captures d'Écran
 
-![Page de Connexion](https://via.placeholder.com/800x600?text=Page+de+Connexion)  
+![Page de Connexion](https://raw.githubusercontent.com/Koniza237/qwert/main/login.png)  
 *Écran de connexion sécurisé avec accès basé sur les rôles.*
 
-![Vue Emploi du Temps](https://via.placeholder.com/800x600?text=Tableau+de+Bord+Emploi+du+Temps)  
+![Vue Emploi du Temps](https://raw.githubusercontent.com/Koniza237/qwert/main/exportation.png)  
 *Vue interactive du calendrier pour les emplois du temps.*
 
 ## Contribution
@@ -88,8 +88,8 @@ Nous accueillons les contributions ! Suivez ces étapes :
 Pour les changements majeurs, ouvrez d'abord une issue pour discuter de ce que vous souhaitez modifier.
 
 ## Feuille de Route
-- **Version 1.1** : Ajout d'algorithmes de détection de conflits.
-- **Version 2.0** : Intégration d'IA pour la planification automatisée.
+- **Version 2.1** : Ajout d'algorithmes de détection de conflits.
+- **Version 3.0** : Intégration d'IA pour la planification automatisée.
 - Futur : Application mobile complémentaire utilisant React Native.
 
 ## Licence
