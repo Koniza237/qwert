@@ -1,6 +1,6 @@
 # FARENO - UNIVERSITY (Version 2)
 
-![Bannière FARENO University](https://raw.githubusercontent.com/Koniza237/qwert/main/FARENOUNIVERSITY.jpg)  
+![Bannière FARENO University](https://raw.githubusercontent.com/Koniza237/qwert/master/FARENOUNIVERSITY.jpg)  
 *Une application web dynamique pour la gestion des emplois du temps universitaires.*
 
 ## Aperçu
@@ -70,10 +70,10 @@ Ce projet est open-source sous la licence Apache 2.0, encourageant les contribut
 
 ## Captures d'Écran
 
-![Page de Connexion](https://raw.githubusercontent.com/Koniza237/qwert/main/login.png)  
+![Page de Connexion](https://raw.githubusercontent.com/Koniza237/qwert/master/login.png)  
 *Écran de connexion sécurisé avec accès basé sur les rôles.*
 
-![Vue Emploi du Temps](https://raw.githubusercontent.com/Koniza237/qwert/main/exportation.png)  
+![Vue Emploi du Temps](https://raw.githubusercontent.com/Koniza237/qwert/master/exportation.png)  
 *Vue interactive du calendrier pour les emplois du temps.*
 
 ## Contribution
