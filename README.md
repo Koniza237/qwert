@@ -1,6 +1,6 @@
 # FARENO - UNIVERSITY (Version 2)
 
-![Bannière FARENO University](https://via.placeholder.com/1280x400?text=FARENO+University+Système+de+Gestion)  
+![Bannière FARENO University](https://https://github.com/Koniza237/qwert/FARENOUNIVERSITY.jpg)  
 *Une application web dynamique pour la gestion des emplois du temps universitaires.*
 
 ## Aperçu
